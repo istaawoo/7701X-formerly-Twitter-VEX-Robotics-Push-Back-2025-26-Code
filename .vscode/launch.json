@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/Users/User/Documents/7701X-formerly-Twitter-VEX-Robotics-Push-Back-2025-26-Code/7701X_Push_Back/src",
+      "program": "c:/Users/User/Documents/7701X-formerly-Twitter-VEX-Robotics-Push-Back-2025-26-Code/7701X_Push_Back/src/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
