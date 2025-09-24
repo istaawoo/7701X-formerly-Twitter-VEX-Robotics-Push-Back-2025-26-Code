@@ -1,4 +1,7 @@
+//include main
 #include "main.h"
+
+//include pros files
 #include "liblvgl/llemu.h" // IWYU pragma: keep
 #include "liblvgl/llemu.hpp"
 #include "pros/abstract_motor.hpp"
@@ -16,6 +19,8 @@
 #include "pros/rotation.hpp"
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
+
+//general C++ utilities 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
 #include <stdio.h>
