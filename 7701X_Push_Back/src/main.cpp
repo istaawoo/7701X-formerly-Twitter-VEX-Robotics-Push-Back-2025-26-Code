@@ -1,24 +1,24 @@
 #include "main.h"
 #include "liblvgl/llemu.h" // IWYU pragma: keep
 #include "liblvgl/llemu.hpp"
-#include "pros/abstract_motor.hpp"
+#include "pros/abstract_motor.hpp" // IWYU pragma: keep
 #include "pros/adi.h" // IWYU pragma: keep
-#include "pros/adi.hpp"
-#include "pros/colors.hpp"
+#include "pros/adi.hpp" // IWYU pragma: keep
+#include "pros/colors.hpp" // IWYU pragma: keep
 #include "pros/device.hpp" // IWYU pragma: keep
 #include "pros/distance.hpp" // IWYU pragma: keep
 #include "pros/imu.h"  // IWYU pragma: keep
-#include "pros/imu.hpp"
+#include "pros/imu.hpp" // IWYU pragma: keep
 #include "pros/llemu.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h" // IWYU pragma: keep
-#include "pros/motors.hpp"
-#include "pros/rotation.hpp"
+#include "pros/motors.hpp" // IWYU pragma: keep
+#include "pros/rotation.hpp" // IWYU pragma: keep
 #include "pros/rtos.hpp"
-#include "pros/screen.hpp"
+#include "pros/screen.hpp"// IWYU pragma: keep
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
-#include <stdio.h>
+#include <stdio.h> // IWYU pragma: keep
 
 /**
  * A callback function for LLEMU's center button.
