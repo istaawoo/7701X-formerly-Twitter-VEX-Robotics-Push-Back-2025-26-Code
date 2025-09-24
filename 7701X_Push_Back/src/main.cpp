@@ -18,12 +18,12 @@
 #include "pros/motors.hpp" // IWYU pragma: keep
 #include "pros/rotation.hpp" // IWYU pragma: keep
 #include "pros/rtos.hpp"
-#include "pros/screen.hpp"
+#include "pros/screen.hpp" // IWYU pragma: keeps
 
 //general C++ utilities 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
-#include <stdio.h>
+#include <stdio.h> // IWYU pragma: keep
 
 //include PID and other custom built utilities
 
