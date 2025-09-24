@@ -1,4 +1,7 @@
+//include main
 #include "main.h"
+
+//include pros files
 #include "liblvgl/llemu.h" // IWYU pragma: keep
 #include "liblvgl/llemu.hpp"
 #include "pros/abstract_motor.hpp" // IWYU pragma: keep
@@ -15,10 +18,15 @@
 #include "pros/motors.hpp" // IWYU pragma: keep
 #include "pros/rotation.hpp" // IWYU pragma: keep
 #include "pros/rtos.hpp"
-#include "pros/screen.hpp"// IWYU pragma: keep
+#include "pros/screen.hpp"
+
+//general C++ utilities 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
-#include <stdio.h> // IWYU pragma: keep
+#include <stdio.h>
+
+//include PID and other custom built utilities
+
 
 /**
  * A callback function for LLEMU's center button.
