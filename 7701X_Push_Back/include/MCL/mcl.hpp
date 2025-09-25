@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <vector>
@@ -30,11 +31,11 @@ public:
 
     float expSense[5]; //array of all the expected sensor values. Used to loop through them.
 
-    particle operator+(const lemlib::Pose &other) const {
+    particle operator+(const particle &other) const {
         return particle(x+other.x,y+other.y,theta+other.theta);
     }
 
-    particle operator-(const lemlib::Pose &other) const {
+    particle operator-(const particle &other) const {
         return particle(x-other.x,y-other.y,theta-other.theta);
     }
 
@@ -64,7 +65,7 @@ public:
     expSense[2]: left distance sensor: expected left distance sensor value at this particle
     expSense[3]: back distance sensor: expected back distance sensor value at this particle
     expSense[4]: rotation sensor IMU: expected IMU sensor rotation value at this particle
-    */
+    
 };
 
 class particleFilter {
@@ -118,3 +119,4 @@ public:
 
     void resample();
 };
+*/
