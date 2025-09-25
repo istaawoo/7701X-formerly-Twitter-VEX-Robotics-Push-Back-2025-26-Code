@@ -1,4 +1,3 @@
-/*
 #pragma once
 
 #include <vector>
@@ -47,7 +46,7 @@ public:
         return particle(x/other,y/other,theta/other);
     }
 
-    particle operator=(const lemlib::Pose &other) {
+    particle operator=(const particle &other) {
         this->x = other.x;
         this->y = other.y;
         this->theta = other.theta;
@@ -65,15 +64,15 @@ public:
     expSense[2]: left distance sensor: expected left distance sensor value at this particle
     expSense[3]: back distance sensor: expected back distance sensor value at this particle
     expSense[4]: rotation sensor IMU: expected IMU sensor rotation value at this particle
-    
+    */    
 };
 
 class particleFilter {
 private:
     const int maxParticles; //Number of particles in the filter
     std::vector<particle*> particles; //create a vector of all the particles
-    lemlib::Pose position;
-    lemlib::Pose robot;
+    particle position;
+    particle robot;
 public:
     int move = 0;
 
@@ -119,4 +118,3 @@ public:
 
     void resample();
 };
-*/
