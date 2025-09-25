@@ -1,5 +1,5 @@
 //include main
-#include "main.h" 
+#include "main.h"
 
 //include pros files
 #include "liblvgl/llemu.h" // IWYU pragma: keep
