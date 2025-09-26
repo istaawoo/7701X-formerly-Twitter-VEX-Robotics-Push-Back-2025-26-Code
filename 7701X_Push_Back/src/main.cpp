@@ -33,6 +33,10 @@
 #include "mcl.cpp"
 #include "mcl.hpp"
 
+//robot definitions
+pros::MotorGroup right_motors({1,2,3}, pros::MotorCartridge::blue);
+pros::MotorGroup left_motors({4,5,6}, pros::MotorCartridge::blue);
+
 void on_left_button() {
 
 }
@@ -60,6 +64,9 @@ void autonomous() {} // auton; if disconnected the task will restart; not contin
 
 void opcontrol() {
 	while (true) {
+		static int analogValueRightStickX = pros::E_CONTROLLER_ANALOG_RIGHT_X;
+		static int analogValueLeftStickY = pros::E_CONTROLLER_ANALOG_LEFT_Y;
+		
 		
 		pros::delay(20);
 	}
