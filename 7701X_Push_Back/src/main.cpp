@@ -27,11 +27,11 @@
 
 //include PID/movement utilities
 #include "pid.cpp"
-#include "pid.hpp" 
+#include "mcl/pid.hpp" 
 
 //include MCL stuff
 #include "mcl.cpp"
-#include "mcl.hpp"
+#include "mcl/mcl.hpp"
 
 //robot definitions
 pros::MotorGroup right_motors({1,2,3}, pros::MotorCartridge::blue);
