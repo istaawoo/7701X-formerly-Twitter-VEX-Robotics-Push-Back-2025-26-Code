@@ -27,10 +27,8 @@
 
 //include PID/movement utilities
 #include "pid.cpp"
-
-=======
 #include "mcl/pid.hpp" 
->>>>>>> e6c6d1e8dcf845e319fde8516e553c6d4945c723
+
 
 //include MCL stuff
 #include "mcl.cpp"
