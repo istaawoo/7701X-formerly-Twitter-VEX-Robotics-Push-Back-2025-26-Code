@@ -29,12 +29,56 @@
 #include "mcl.hpp"
 #include "auton.hpp"
 
+
 class PID {
 public:
-    double Kp;
-    double Ki;
-    double Kd;
+    double Kp; // proportional constant
+    double Ki; // integral constant
+    double Kd; // derivative constant
 
-    controller ()
+    double prevError; // previous error
+    double integral;  // error sum
+    double target;    // setpoint
 
-}
+    double integralLimit; // max integral
+
+    // constructor
+    PID(double Kp, double Ki, double Kd, double integralLimit = 1000.0) {
+        this->Kp = Kp;
+        this->Ki = Ki;
+        this->Kd = Kd;
+        this->integralLimit = integralLimit;
+
+        prevError = 0.0;
+        integral = 0.0;
+        target = 0.0;
+    }
+
+    // set target
+    void setTarget(double newTarget) {
+        target = newTarget;
+        integral = 0.0;
+        prevError = 0.0;
+    }
+
+    // calculate PID output
+    double calculate(double current) {
+        double error = target - current; // error
+        integral += error; // accumulate
+
+        // clamp integral
+        if (integral > integralLimit) integral = integralLimit;
+        if (integral < -integralLimit) integral = -integralLimit;
+
+        double derivative = error - prevError; // change
+        prevError = error;
+
+        return (Kp * error) + (Ki * integral) + (Kd * derivative);
+    }
+
+    // reset PID
+    void reset() {
+        integral = 0.0;
+        prevError = 0.0;
+    }
+};
