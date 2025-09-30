@@ -14,7 +14,7 @@
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
 #include "MCL/mcl.hpp"
-#include ""
+#include "MCL/robot.hpp"
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
 #include <stdio.h>
@@ -107,13 +107,6 @@ void particle::moveUpdate(float dx, float dy, float dtheta) {
     x+=dx;
     y+=dy;
     theta+=dtheta;
-}
-
-particle particle::operator=(const lemlib::Pose &other) {
-    this->x = other.x;
-    this->y = other.y;
-    this->theta = other.theta;
-    return *this;
 }
 
 //Sim robot for testing functions
