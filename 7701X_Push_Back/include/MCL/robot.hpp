@@ -1,20 +1,5 @@
-#include "liblvgl/llemu.h" // IWYU pragma: keep
-#include "liblvgl/llemu.hpp"
-#include "pros/abstract_motor.hpp" // IWYU pragma: keep
-#include "pros/adi.h" // IWYU pragma: keep
-#include "pros/adi.hpp" // IWYU pragma: keep
-#include "pros/colors.hpp" // IWYU pragma: keep
-#include "pros/device.hpp" // IWYU pragma: keep
-#include "pros/distance.hpp" // IWYU pragma: keep
-#include "pros/imu.h"  // IWYU pragma: keep
-#include "pros/imu.hpp" // IWYU pragma: keep
-#include "pros/llemu.hpp"
-#include "pros/misc.h"
-#include "pros/motors.h" // IWYU pragma: keep
-#include "pros/motors.hpp" // IWYU pragma: keep
-#include "pros/rotation.hpp" // IWYU pragma: keep
-#include "pros/rtos.hpp"
-#include "pros/screen.hpp" // IWYU pragma: keep
+#pragma once
+//movements: forwards distance, backwards distance, to-point, turn to-point, turn to-heading
 
 class pose { //Variable that stores and x, y and theta position
 public:
@@ -32,5 +17,16 @@ public:
 };
 
 class robot {
+public:
+    float trackWidth;
+    float trackLength;
+    float wheelRatio;
+    float wheelSize;
+    float rotCenterDistance;
 
+    pose position;
+
+    void move() {
+        
+    }
 };
