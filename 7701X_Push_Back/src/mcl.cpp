@@ -109,13 +109,6 @@ void particle::moveUpdate(float dx, float dy, float dtheta) {
     theta+=dtheta;
 }
 
-particle particle::operator=(const lemlib::Pose &other) {
-    this->x = other.x;
-    this->y = other.y;
-    this->theta = other.theta;
-    return *this;
-}
-
 //Sim robot for testing functions
 void particleFilter::simSenses() {
     for(int k; k < 4; k++) {        

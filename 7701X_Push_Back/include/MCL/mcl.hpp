@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MCL/robot.hpp"
 #include <vector>
 #include <variant>
 
@@ -20,21 +21,20 @@ void updateSenseData(double rightSensor, double frontSensor, double leftSensor, 
 
 class particle { //defines a particle. (A guess of where the robot is)  
 public:
-    //Inheirites x, y and theta from lemlib Pose class.
-    float x;
-    float y;
-    float theta;
+    float x; //x-cord
+    float y; //y-cord
+    float theta; //angle of heading
     float weight; //how likely the robot is at that particle
 
     particle(float x_, float y_, float theta_, float weight_ = 1) : x(x_), y(y_), theta(theta_), weight(weight_) {}
 
     float expSense[5]; //array of all the expected sensor values. Used to loop through them.
 
-    particle operator+(const particle &other) const {
+    particle operator+(const pose &other) const {
         return particle(x+other.x,y+other.y,theta+other.theta);
     }
 
-    particle operator-(const particle &other) const {
+    particle operator-(const pose &other) const {
         return particle(x-other.x,y-other.y,theta-other.theta);
     }
 
@@ -46,7 +46,7 @@ public:
         return particle(x/other,y/other,theta/other);
     }
 
-    particle operator=(const particle &other) {
+    particle operator=(const pose &other) {
         this->x = other.x;
         this->y = other.y;
         this->theta = other.theta;
