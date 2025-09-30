@@ -14,6 +14,7 @@
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
 #include "mcl/mcl.hpp"
+#include "mcl/robot.hpp"
 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
@@ -103,7 +104,7 @@ void particle::avg(particle p1, particle p2) {
     particle avg(p1.x*p1.weight+p2.x*p2.weight,p1.y*p1.weight+p2.y*p2.weight,p1.theta*p1.weight+p2.theta*p2.weight,comboWeight);
 }
 
-void particle::moveUpdate(float dx, float dy, float dtheta) {
+void particle::moveUpdate(float dx, float dy, float dtheta) { //moves a particle by an ammount dx, dy, and dtheta
     x+=dx;
     y+=dy;
     theta+=dtheta;
@@ -232,12 +233,13 @@ void particleFilter::simSenses() {
     }
 
     void particleFilter::turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
-        //Sim robot, testing only
+        /* Sim robot, testing only
         robot.x += randError(errorX);
         robot.y += randError(errorY);
         robot.theta = targetTheta + randError(errorTheta);
         simSenses();
-        
+        */
+
         uint32_t start = pros::millis();
         for(particle* p : particles) {
             p->expSense[5] = targetTheta - p->theta;
@@ -251,7 +253,7 @@ void particleFilter::simSenses() {
     }
 
     void particleFilter::driveDistMoveUpdate(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta) {
-        //Sim robot, testing only
+        /* Sim robot, testing only
         float initialTheta = robot.theta;
         float dist = targetDistance + randError(errorDistance); //predicted inches moved in this update plus random error
         float drift = randError(errorDrift); //calculates random drift error
@@ -262,9 +264,9 @@ void particleFilter::simSenses() {
         robot.theta += randError(errorTheta); //adds random error to particle angle.
         simSenses();
         sensors[4].reading = robot.theta - initialTheta + randError(sensors[4].stanDev);
-
+        */
         
-        uint32_t start = pros::millis();
+        uint32_t start = pros::millis(); //move update start time
         for(particle* p : particles) {
             float initialTheta = p->theta;
             float dist = targetDistance + randError(errorDistance); //predicted inches moved in this update plus random error
@@ -277,8 +279,8 @@ void particleFilter::simSenses() {
             predictDistance(p);
             p->expSense[4] = p->theta - initialTheta;
         }
-        u_int32_t end = pros::millis();
-        moveTime = end - start - predictSenseTime - useSenseTime;
+        u_int32_t end = pros::millis(); //move update end time
+        moveTime = end - start - predictSenseTime - useSenseTime; //total time for mcl
     }
 
     //updates weights of particles based on how likely they are to recieve the sensor data recieved

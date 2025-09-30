@@ -112,6 +112,8 @@ public:
 
     void driveDistMoveUpdate(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta);
 
+    void boomerangMoveUpdate(float targetX, float targetY, float targetTheta);
+
     void senseUpdate();
 
     void predictPosition();
