@@ -13,8 +13,8 @@
 #include "pros/rotation.hpp"
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
-#include "MCL/mcl.hpp"
-#include "MCL/robot.hpp"
+#include "mcl/mcl.hpp"
+
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
 #include <stdio.h>
