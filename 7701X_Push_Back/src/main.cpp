@@ -25,10 +25,13 @@
 #include <iostream> // IWYU pragma: keep
 #include <stdio.h> // IWYU pragma: keep
 
+//include robot
+#include "mcl/robot.hpp"
+#include "robot.cpp"
+
 //include PID/movement utilities
 #include "src/pid.cpp"
 #include "mcl/pid.hpp" 
-
 
 //include MCL stuff
 #include "src/mcl.cpp"
@@ -61,7 +64,9 @@ void disabled() {} // task exits when robot is re-enabled
 
 void competition_initialize() {} // pre-auton; ends when auton begins
 
-void autonomous() {} // auton; if disconnected the task will restart; not continue where stopped
+void autonomous() { // auton; if disconnected the task will restart; not continue where stopped
+
+}
 
 void opcontrol() {
 	while (true) {
