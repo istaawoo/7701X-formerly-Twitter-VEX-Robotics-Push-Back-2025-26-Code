@@ -32,7 +32,7 @@ sensor right(0,0,90,1);
 sensor front(0,0,0,1);
 sensor left(0,0,270,1);
 sensor back(0,0,180,1);
-sensor imu(0,0,0,1);
+sensor imu(0,0,0,1);/
 
 sensor sensors[5] = {right,front,left,back,imu};
 
@@ -110,12 +110,13 @@ void particle::moveUpdate(float dx, float dy, float dtheta) { //moves a particle
     theta+=dtheta;
 }
 
-//Sim robot for testing functions
+/*Sim robot for testing functions
 void particleFilter::simSenses() {
     for(int k; k < 4; k++) {        
         sensors[k].reading = rayCastWalls(robot.x+sensors[k].offX,robot.y+sensors[k].offY,robot.theta+sensors[k].face) + randError(sensors[k].stanDev);
     }
 }
+*/
 
 //particleFilter class functions
     void particleFilter::useSense(particle* p) { //Check this function
@@ -213,13 +214,14 @@ void particleFilter::simSenses() {
     //Adds particles at a starting location with random setup error;
     void particleFilter::initializeParticles(float initialX, float initialY, float initialTheta, 
                                             gaussian errorX, gaussian errorY, gaussian errorTheta) {
-        //SIM ROBOT, testing only
+        /*SIM ROBOT, testing only
         robot.x = initialX + randError(errorX);
         robot.y = initialY + randError(errorY);
         robot.theta = initialTheta + randError(errorTheta);
         simSenses();
         sensors[4].reading = 0;
-        
+        */
+
         for(int p; p < maxParticles; p++) {
             float x_ = initialX + randError(errorX);
             float y_ = initialY + randError(errorY);
@@ -232,6 +234,21 @@ void particleFilter::simSenses() {
         }
     }
 
+    //moves the particles to a positions randomly offset from target position.
+    void particleFilter::moveUpdate(float targetX, float targetY, float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
+        uint32_t start = pros::millis();
+        for(particle* p : particles) {
+            float initialTheta = p->theta;
+            p->x = targetX + randError(errorX);
+            p->y += targetY + randError(errorY);
+            p->theta = targetTheta + targetTheta + randError(errorTheta);
+            p->expSense[4] += p->theta - initialTheta;
+            predictDistance(p);
+        }
+        uint32_t end = pros::millis();
+        moveTime = end - start - predictSenseTime - useSenseTime;
+    }
+
     void particleFilter::turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
         /* Sim robot, testing only
         robot.x += randError(errorX);
@@ -242,10 +259,11 @@ void particleFilter::simSenses() {
 
         uint32_t start = pros::millis();
         for(particle* p : particles) {
-            p->expSense[5] = targetTheta - p->theta;
+            float initialTheta = p->theta;
             p->x += randError(errorX);
             p->y += randError(errorY);
             p->theta = targetTheta + randError(errorTheta);
+            p->expSense[4] += p->theta - initialTheta;
             predictDistance(p);
         }
         uint32_t end = pros::millis();
@@ -277,7 +295,7 @@ void particleFilter::simSenses() {
             p->y += sin(p->theta-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
             p->theta += randError(errorTheta); //adds random error to particle angle.
             predictDistance(p);
-            p->expSense[4] = p->theta - initialTheta;
+            p->expSense[4] += p->theta - initialTheta;
         }
         u_int32_t end = pros::millis(); //move update end time
         moveTime = end - start - predictSenseTime - useSenseTime; //total time for mcl
@@ -304,7 +322,7 @@ void particleFilter::simSenses() {
         uint32_t senseTime = end - start;
     }
 
-    void particleFilter::predictPosition() { //take the wighted sum of all particles positions to determin the predicted position
+    Pose particleFilter::predictPosition() { //take the wighted sum of all particles positions to determin the predicted position
         u_int32_t start = pros::millis();
         position.x = 0;
         position.y = 0;
@@ -316,6 +334,7 @@ void particleFilter::simSenses() {
         }
         u_int32_t end = pros::millis();
         predictPosTime = end - start;
+        return position;
     }
 
     //resamples the particles, favoring those with high weights and adding some noise. Converges particles on likely robot position.

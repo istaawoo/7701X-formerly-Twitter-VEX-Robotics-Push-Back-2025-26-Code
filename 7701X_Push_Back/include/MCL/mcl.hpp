@@ -5,7 +5,7 @@
 #include <variant>
 
 struct sensor { //defines a sensor position with offset from center of roation in Y and X and angle facing from front of robot. Stores if we are using the sensor
-    //std::variant<pros::Distance, pros::Imu, pros::Rotation> theSensor; not needed in testing
+    //std::variant<pros::Distance, pros::Imu, pros::Rotation> theSensor; //not needed in testing
     float offX, offY, face, reading, stanDev;
     bool use = true;
 
@@ -71,8 +71,7 @@ class particleFilter {
 private:
     const int maxParticles; //Number of particles in the filter
     std::vector<particle*> particles; //create a vector of all the particles
-    particle position;
-    particle robot;
+    Pose position;
 public:
     int move = 0;
 
@@ -98,7 +97,7 @@ public:
     gaussian statNoiseRot;
 
     particleFilter(int total, gaussian statNoiseL, gaussian statNoiseR) : statNoiseLinear(statNoiseL), statNoiseRot(statNoiseR), 
-    maxParticles(total), position(0,0,0), robot(0,0,0) {}
+    maxParticles(total), position(0,0,0) {}
 
     void initializeParticles(float initialX, float initialY, float initialTheta, 
                             gaussian errorX, gaussian errorY, gaussian errorTheta);
@@ -106,7 +105,7 @@ public:
 
     //Default Error Values
 
-    void moveUpdate(float targetX, float targetY, float targetTheta, float errorX, float errorY, float errorTheta);
+    void moveUpdate(float targetX, float targetY, float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta);
 
     void turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta);
 
@@ -116,7 +115,7 @@ public:
 
     void senseUpdate();
 
-    void predictPosition();
+    Pose predictPosition();
 
     void resample();
 };
