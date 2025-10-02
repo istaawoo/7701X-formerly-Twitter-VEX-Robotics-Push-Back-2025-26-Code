@@ -8,6 +8,7 @@
 #include "pros/distance.hpp"
 #include "pros/optical.hpp"
 #include "pros/motors.hpp"
+#include "pros/motor_group.hpp"
 #include "mcl/mcl.hpp"
 
 class Pose { //Variable that stores and x, y and theta position
@@ -38,15 +39,20 @@ enum class TurnPID {
 };
 
 class Robot {
+private:
+    Pose robotPose();
 public:
-    float trackWidth;
-    float trackLength;
-    float wheelRatio;
-    float wheelSize;
-    int rotCenterDistance;
+    double trackWidth;
+    double trackLength;
+    double wheelRatio;
+    double wheelSize;
+    double rotCenterDistance;
+
+    pros::MotorGroup* right_motors;
+    pros::MotorGroup* left_motors;
+
     LatPID latteral_PID;
     TurnPID turning_PID;
-
 
     std::vector<std::unique_ptr<pros::Imu>> imus;
     std::vector<std::unique_ptr<pros::Rotation>> rotations;
@@ -55,19 +61,16 @@ public:
     std::vector<std::unique_ptr<pros::ADIDigitalOut>> adiOuts;
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
-    Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance, pros::MotorGroup rightMotors, pros::MotorGroup leftMotors, LatPID, TurnPID);
+    Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance,
+          pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID, TurnPID);
 
-    void IMU(int port);
-    void Rotation(int port);
-    void Distance(int port);
-    void Optical(int port);
-    void ADI_In(char port);
-    void ADI_Out(char port);
+    Pose getPose();
 
     void move(float distance, float theta, int timeout);        // move relative distance and heading ofset
-    void moveTo(float x, float y, int timeout);                 // move to global point keeping current heading
-    void moveTo(float x, float y, float theta, int timeout);    // move to global point while rotating
+    void moveToPoint(float x, float y, int timeout);            // move to global point keeping current heading
+    void moveToPose(float x, float y, float theta, int timeout);// move to global point while rotating
     void turn(float thetaRelative, int timeout);                // relative turn
     void turnTo(float thetaAbsolute, int timeout);              // turn to absolute heading
+    void turnToPoint(float x, float y, int timeout);
 
 };

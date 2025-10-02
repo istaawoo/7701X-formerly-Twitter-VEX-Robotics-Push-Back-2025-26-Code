@@ -307,7 +307,7 @@ void particleFilter::simSenses() {
         float totalWeight = 0; //defines a variable for the sum of all particle weights. Used in normalization 
         for(particle* p : particles) { //loops through each particle
             p->weight = 1; //sets weight to 1 initially so the *= can be used for sensors afterwards
-            for(int k = 0;k<5; k++) { //calulates the sensor weights by looping and taking the product of gaussian probability that the sensor readings would be what they are at each particle
+            for(int k = 0; k<5; k++) { //calulates the sensor weights by looping and taking the product of gaussian probability that the sensor readings would be what they are at each particle
                 if(sensors[k].use = true) {
                     //Save stanDev^2 in the sensor variable
                     p->weight *= exp(-1*(sensors[k].reading-p->expSense[k])*(sensors[k].reading-p->expSense[k])/(2*sensors[k].stanDev*sensors[k].stanDev));

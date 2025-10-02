@@ -37,7 +37,7 @@ double PID::calculate(double current) {
     double error = target - current; // error
     integral += error; // accumulate
 
-    // clamp integral
+    // limit integral
     if (integral > integralLimit) integral = integralLimit;
     if (integral < -integralLimit) integral = -integralLimit;
 
@@ -68,39 +68,6 @@ bool PID::isSettled(double current) {
 
     if (now - startTime >= timeoutMs) return true; // timeout
     return false;
-}
-
-// start PID in a background PROS task
-void PID::start(std::function<double()> sensor, std::function<void(double)> actuator) {
-    if (running) return; // already running
-
-    running = true;
-    task = new pros::Task([this, sensor, actuator] {
-        startTime = pros::millis();
-        stableTime = pros::millis();
-
-        while (running) {
-            double current = sensor();
-            double power = calculate(current);
-            actuator(power);
-
-            if (isSettled(current)) break;
-
-            pros::delay(20); // loop every 20ms
-        }
-
-        running = false;
-    });
-}
-
-// stop PID and clean up task
-void PID::stop() {
-    running = false;
-    if (task != nullptr) {
-        task->remove();
-        delete task;
-        task = nullptr;
-    }
 }
 
 // reset PID
