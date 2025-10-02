@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MCL/robot.hpp"
+#include "mcl/robot.hpp"
 #include <vector>
 #include <variant>
 
@@ -30,11 +30,11 @@ public:
 
     float expSense[5]; //array of all the expected sensor values. Used to loop through them.
 
-    particle operator+(const pose &other) const {
+    particle operator+(const particle &other) const {
         return particle(x+other.x,y+other.y,theta+other.theta);
     }
 
-    particle operator-(const pose &other) const {
+    particle operator-(const particle &other) const {
         return particle(x-other.x,y-other.y,theta-other.theta);
     }
 
@@ -46,7 +46,7 @@ public:
         return particle(x/other,y/other,theta/other);
     }
 
-    particle operator=(const pose &other) {
+    particle operator=(const particle &other) {
         this->x = other.x;
         this->y = other.y;
         this->theta = other.theta;

@@ -32,6 +32,18 @@
 #include "mcl.hpp"
 #include "auton.hpp"
 
+void on_left_button() {
+
+}
+
+void on_center_button() {
+	
+}
+
+void on_right_button() {
+
+}
+
 void screenUpdate() {
 
 }
