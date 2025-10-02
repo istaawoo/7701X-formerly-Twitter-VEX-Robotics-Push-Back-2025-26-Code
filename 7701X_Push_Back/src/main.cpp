@@ -52,6 +52,8 @@ PID turning_high_qual(1, 0, 1);
 PID turning_med_qual(5, 1, 5);
 PID turning_low_qual(10, 5, 10);
 
+Robot robot(11.0, 10.0, .75, 3.25, 5.75, LatPID::lat_one, TurnPID::turn_one);
+
 void initialize() { // runs initialization; keep execution time under three seconds
 	pros::lcd::initialize();
 	pros::lcd::register_btn0_cb(on_left_button);

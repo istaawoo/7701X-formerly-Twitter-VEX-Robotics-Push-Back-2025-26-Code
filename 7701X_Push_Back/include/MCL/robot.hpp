@@ -43,11 +43,11 @@ private:
     Pose robotPose();
 
 public:
-    float trackWidth;
-    float trackLength;
-    float wheelRatio;
-    float wheelSize;
-    int rotCenterDistance;
+    double trackWidth;
+    double trackLength;
+    double wheelRatio;
+    double wheelSize;
+    double rotCenterDistance;
 
     LatPID latteral_PID;
     TurnPID turning_PID;
@@ -59,7 +59,7 @@ public:
     std::vector<std::unique_ptr<pros::ADIDigitalOut>> adiOuts;
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
-    Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance, LatPID, TurnPID);
+    Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance, LatPID, TurnPID);
 
     Pose getPose();
 

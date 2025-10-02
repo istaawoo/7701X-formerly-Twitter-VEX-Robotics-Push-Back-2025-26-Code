@@ -1,6 +1,6 @@
 #include "robot.hpp"
 
-Robot::Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance, LatPID, TurnPID) {
+Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance, LatPID, TurnPID) {
     this->trackWidth = trackWidth;
     this->trackLength = trackLength;
     this->wheelRatio = wheelRatio;
