@@ -26,6 +26,14 @@ public:
 
     pose position;
 
+    void moveTurnHeading(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta);
+
+    void moveTurnPoint(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta);
+
+    void moveForwards(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta);
+
+    void moveBackwards(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta);
+
     void move() {
         
     }
