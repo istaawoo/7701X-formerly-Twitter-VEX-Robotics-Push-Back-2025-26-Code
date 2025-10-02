@@ -17,7 +17,13 @@ public:
     float y;     //y-cord
     float theta; //angle of heading
 
-    Pose(float x_, float y_, float theta_ = 0) : x(x_), y(y_), theta(theta_) {}
+    Pose(float x_=0, float y_=0, float theta_ = 0) : x(x_), y(y_), theta(theta_) {}
+
+    Pose operator=(const Pose &other) { //sets the pose cords to the cords of a Pose
+        this->x = other.x;
+        this->y = other.y;
+        this->theta = other.theta;
+    }
 
     Pose operator=(const particle &other) { //sets the pose cords to the cords of a particle
         this->x = other.x;
@@ -40,7 +46,8 @@ enum class TurnPID {
 
 class Robot {
 private:
-    Pose robotPose();
+    Pose robotPose;
+    particleFilter robotFilter = particleFilter(50,gaussian(3),gaussian(0.15));
 public:
     double trackWidth;
     double trackLength;
@@ -66,11 +73,22 @@ public:
 
     Pose getPose();
 
-    void move(float distance, float theta, int timeout);        // move relative distance and heading ofset
-    void moveToPoint(float x, float y, int timeout);            // move to global point keeping current heading
-    void moveToPose(float x, float y, float theta, int timeout);// move to global point while rotating
-    void turn(float thetaRelative, int timeout);                // relative turn
-    void turnTo(float thetaAbsolute, int timeout);              // turn to absolute heading
-    void turnToPoint(float x, float y, int timeout);
+    void place(float x, float y, float theta, gaussian errorLat, gaussian errorRot); //Put the robot at a starting position. initializes particle filter
+    
+    void checkStart(); //uses MCL to check and update starting position
+
+    void move(float distance, float theta, int timeout, float maxSpeed,         // move a relative distance along a target heading
+    gaussian errorLat, gaussian errorRot);
+
+    void moveToPoint(float x, float y, int timeout);                            // move to global point with final heading along movement
+    
+    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed, // move to global point with a target heading
+    float lead, float horizontalDrift);                                         
+    
+    void turn(float thetaRelative, int timeout);                                // turn a relative angle
+    
+    void turnTo(float thetaAbsolute, int timeout);                              // turn to an absolute heading
+    
+    void turnToPoint(float x, float y, int timeout);                            // turn to face a global point
 
 };
