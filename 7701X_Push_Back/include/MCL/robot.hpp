@@ -7,6 +7,7 @@
 #include "pros/rotation.hpp"
 #include "pros/distance.hpp"
 #include "pros/optical.hpp"
+#include "pros/motors.hpp"
 #include "mcl/mcl.hpp"
 
 class Pose { //Variable that stores and x, y and theta position
@@ -54,7 +55,7 @@ public:
     std::vector<std::unique_ptr<pros::ADIDigitalOut>> adiOuts;
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
-    Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance, LatPID, TurnPID);
+    Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance, pros::MotorGroup rightMotors, pros::MotorGroup leftMotors, LatPID, TurnPID);
 
     void IMU(int port);
     void Rotation(int port);
