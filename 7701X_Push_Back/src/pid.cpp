@@ -3,18 +3,18 @@
 
 // constructor
 PID::PID(double Kp, double Ki, double Kd, double integralLimit) {
-    this->Kp = Kp;
-    this->Ki = Ki;
-    this->Kd = Kd;
+    this->Kp = Kp; 
+    this->Ki = Ki; 
+    this->Kd = Kd; 
     this->integralLimit = integralLimit;
 
     prevError = 0.0;
     integral = 0.0;
     target = 0.0;
 
-    errorThreshold = 5.0;   // default tolerance
-    settleTimeMs = 250;     // must stay within error for 250ms
-    timeoutMs = 2000;       // hard stop after 2 seconds
+    errorThreshold = 5.0;
+    settleTimeMs = 250;
+    timeoutMs = 2000;
 
     task = nullptr;
     running = false;

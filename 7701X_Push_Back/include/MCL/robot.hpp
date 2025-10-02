@@ -24,6 +24,18 @@ public:
     }
 };
 
+enum class LatPID {
+    lat_one = 1,
+    lat_two = 2,
+    lat_three = 3
+};
+
+enum class TurnPID {
+    turn_one = 1,
+    turn_two = 2,
+    turn_three = 3
+};
+
 class Robot {
 public:
     float trackWidth;
@@ -31,6 +43,9 @@ public:
     float wheelRatio;
     float wheelSize;
     int rotCenterDistance;
+    LatPID latteral_PID;
+    TurnPID turning_PID;
+
 
     std::vector<std::unique_ptr<pros::Imu>> imus;
     std::vector<std::unique_ptr<pros::Rotation>> rotations;
@@ -39,7 +54,7 @@ public:
     std::vector<std::unique_ptr<pros::ADIDigitalOut>> adiOuts;
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
-    Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance);
+    Robot(float trackWidth, float trackLength, float wheelRatio, float wheelSize, int rotCenterDistance, LatPID, TurnPID);
 
     void IMU(int port);
     void Rotation(int port);
