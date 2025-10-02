@@ -41,7 +41,6 @@ enum class TurnPID {
 class Robot {
 private:
     Pose robotPose();
-
 public:
     double trackWidth;
     double trackLength;
