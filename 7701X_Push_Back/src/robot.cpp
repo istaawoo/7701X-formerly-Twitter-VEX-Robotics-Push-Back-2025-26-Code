@@ -12,6 +12,11 @@ void Robot::move(float distance, float theta, int timeout) {
     int u = 0;
 }
 
+Pose Robot::getPose() {
+    return robotPose();
+}
+
+/*
 // Add sensors dynamically
 void Robot::IMU(int port) {
     imus.push_back(std::make_unique<pros::Imu>(port));
@@ -31,3 +36,4 @@ void Robot::ADI_In(char port) {
 void Robot::ADI_Out(char port) {
     adiOuts.push_back(std::make_unique<pros::ADIDigitalOut>(port));
 }
+*/
