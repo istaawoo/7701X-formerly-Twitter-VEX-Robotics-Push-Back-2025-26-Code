@@ -48,6 +48,9 @@ public:
     double wheelSize;
     double rotCenterDistance;
 
+    pros::MotorGroup* right_motors;
+    pros::MotorGroup* left_motors;
+
     LatPID latteral_PID;
     TurnPID turning_PID;
 
@@ -58,7 +61,8 @@ public:
     std::vector<std::unique_ptr<pros::ADIDigitalOut>> adiOuts;
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
-    Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance, LatPID, TurnPID);
+    Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance,
+          pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID, TurnPID);
 
     Pose getPose();
 

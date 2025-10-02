@@ -44,15 +44,7 @@
 pros::MotorGroup right_motors({1,2,3}, pros::MotorCartridge::blue);
 pros::MotorGroup left_motors({4,5,6}, pros::MotorCartridge::blue);
 
-PID latteral_high_qual(1, 0, 1);  // lat_one
-PID latteral_med_qual(5, 1, 5);   // lat_two
-PID latteral_low_qual(10, 5, 10); // lat_three
-
-PID turning_high_qual(1, 0, 1);   // turn_one
-PID turning_med_qual(5, 1, 5);	  // turn_two
-PID turning_low_qual(10, 5, 10);  // turn_three
-
-Robot robot(11.0, 10.0, .75, 3.25, 5.75, LatPID::lat_one, TurnPID::turn_one);
+Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
 
 void initialize() { // runs initialization; keep execution time under three seconds
 	pros::lcd::initialize();
@@ -77,6 +69,7 @@ void autonomous() { // auton; if disconnected the task will restart; not continu
 }
 
 void opcontrol() {
+
 	while (true) {
 		static int analogValueRightStickX = pros::E_CONTROLLER_ANALOG_RIGHT_X;
 		static int analogValueLeftStickY = pros::E_CONTROLLER_ANALOG_LEFT_Y;
