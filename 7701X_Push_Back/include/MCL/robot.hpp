@@ -73,6 +73,8 @@ public:
 
     Pose getPose();
 
+    void setPID(LatPID, TurnPID);
+
     void place(float x, float y, float theta, gaussian errorLat, gaussian errorRot); //Put the robot at a starting position. initializes particle filter
     
     void checkStart(); //uses MCL to check and update starting position
@@ -90,5 +92,7 @@ public:
     void turnTo(float thetaAbsolute, int timeout);                              // turn to an absolute heading
     
     void turnToPoint(float x, float y, int timeout);                            // turn to face a global point
+
+
 
 };

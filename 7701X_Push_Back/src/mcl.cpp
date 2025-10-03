@@ -121,7 +121,7 @@ void particleFilter::simSenses() {
 //particleFilter class functions
     void particleFilter::useSense(particle* p) { //Check this function
         uint32_t start = pros::millis();
-        if(p->x>0 & p->y>0) { //Quadrant 1
+        if(p->x>0 && p->y>0) { //Quadrant 1
             if(45 <= p->theta < 225) {
                 sensors[2].use = true;
                 sensors[0].use = false;

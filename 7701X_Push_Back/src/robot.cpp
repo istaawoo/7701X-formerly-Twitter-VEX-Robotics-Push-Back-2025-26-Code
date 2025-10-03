@@ -10,6 +10,8 @@ PID turning_high_qual(1, 0, 1);   // turn_one
 PID turning_med_qual(5, 1, 5);	  // turn_two
 PID turning_low_qual(10, 5, 10);  // turn_three
 
+bool finished = true;
+
 Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance, 
              pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID latPID, TurnPID turnPID) {
 
@@ -33,14 +35,21 @@ void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian err
     robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
 }
 
+void waitUntilFinished() {
+    if (!finished) {
+        pros::delay(20);
+    }
+}
+
 void Robot::checkStart() {
     robotFilter.senseUpdate();
     robotPose = robotFilter.predictPosition();
-    robotFilter.resample();
 }
 
 //Move the robot a certian distance along a certian heading.
 void Robot::move(float distance, float theta, int timeout, float maxSpeed, gaussian errorLat, gaussian errorRot) { 
+    waitUntilFinished();
+    finished = false;
     targetPose.x = getPose().x + distance * cos(theta); //gets the target x position by adding x component of movement vector with current position
     targetPose.y = getPose().y + distance * sin(theta); //gets the target y position by adding y component of movement vector with current position
     targetPose.theta = theta; //gets target theta as heading of movement
@@ -103,16 +112,17 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, gauss
                 }
                 robotFilter.senseUpdate();
                 robotPose = robotFilter.predictPosition();
-                robotFilter.resample();
-
+                finished = true;
                 break;
             }
             pros::delay(20);
         }
     });
+    
 
     pros::Task moveTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
+        robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x, targetPose.y, targetPose.theta, errorLat, errorLat, errorRot);
 
     });
@@ -120,6 +130,8 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, gauss
 
 //Move the robot to a point with a heading along path of travel
 void Robot::moveToPoint(float x, float y, int timeout) {
+    waitUntilFinished();
+    finished = false;
     targetPose.x = x;
     targetPose.y = y;
     targetPose.theta = atan2(y,x);
@@ -181,6 +193,7 @@ void Robot::moveToPoint(float x, float y, int timeout) {
                     left_motors->move(0);
                     right_motors->move(0);
                 }
+                finished = true;
                 break;
             }
             pros::delay(20);
@@ -190,6 +203,8 @@ void Robot::moveToPoint(float x, float y, int timeout) {
 
 //Move the robot to a point with a target heading
 void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float lead, float horizontalDrift) {
+    waitUntilFinished();
+    finished = false;
     targetPose.x = x;
     targetPose.y = y;
     targetPose.theta = theta;
@@ -262,6 +277,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
                     left_motors->move(0);
                     right_motors->move(0);
                 }
+                finished = true;
                 break;
             }
             pros::delay(20);
@@ -271,6 +287,8 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
 
 //Turn the robot an ammount relative to current heading
 void Robot::turn(float thetaRelative, int timeout) {
+    waitUntilFinished();
+    finished = false;
     targetPose.x = getPose().x;
     targetPose.y = getPose().y;
     targetPose.theta = getPose().theta + thetaRelative;
@@ -310,6 +328,7 @@ void Robot::turn(float thetaRelative, int timeout) {
                     left_motors->move(0);
                     right_motors->move(0);
                 }
+                finished = true;
                 break;
             }
             pros::delay(20);
@@ -319,6 +338,8 @@ void Robot::turn(float thetaRelative, int timeout) {
 
 //Turn the robot to a global heading
 void Robot::turnTo(float thetaAbsolute, int timeout) {
+    waitUntilFinished();
+    finished = false;
     targetPose.x = getPose().x;
     targetPose.y = getPose().y;
     targetPose.theta = thetaAbsolute;
@@ -358,6 +379,7 @@ void Robot::turnTo(float thetaAbsolute, int timeout) {
                     left_motors->move(0);
                     right_motors->move(0);
                 }
+                finished = true;
                 break;
             }
             pros::delay(20);
@@ -367,8 +389,8 @@ void Robot::turnTo(float thetaAbsolute, int timeout) {
 
 //Turn the robot to face a global point
 void Robot::turnToPoint(float x, float y, int timeout) {
-    targetPose.x = getPose().x;
-    targetPose.y = getPose().y;
+    waitUntilFinished();
+    finished = false;
     float dx = x - getPose().x;
     float dy = y - getPose().y;
     targetPose.theta = atan2(dy,dx);
@@ -408,6 +430,7 @@ void Robot::turnToPoint(float x, float y, int timeout) {
                     left_motors->move(0);
                     right_motors->move(0);
                 }
+                finished = true;
                 break;
             }
             pros::delay(20);
@@ -420,25 +443,3 @@ Pose Robot::getPose() {
 }
 
 Pose targetPose(0, 0, 0);
-
-/*
-// Add sensors dynamically
-void Robot::IMU(int port) {
-    imus.push_back(std::make_unique<pros::Imu>(port));
-}
-void Robot::Rotation(int port) {
-    rotations.push_back(std::make_unique<pros::Rotation>(port));
-}
-void Robot::Distance(int port) {
-    distances.push_back(std::make_unique<pros::Distance>(port));
-}
-void Robot::Optical(int port) {
-    opticals.push_back(std::make_unique<pros::Optical>(port));
-}
-void Robot::ADI_In(char port) {
-    adiIns.push_back(std::make_unique<pros::ADIAnalogIn>(port));
-}
-void Robot::ADI_Out(char port) {
-    adiOuts.push_back(std::make_unique<pros::ADIDigitalOut>(port));
-}
-*/
