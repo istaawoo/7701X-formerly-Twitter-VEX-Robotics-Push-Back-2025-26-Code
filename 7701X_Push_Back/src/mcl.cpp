@@ -32,7 +32,7 @@ sensor right(0,0,90,1);
 sensor front(0,0,0,1);
 sensor left(0,0,270,1);
 sensor back(0,0,180,1);
-sensor imu(0,0,0,1);/
+sensor imu(0,0,0,1);
 
 sensor sensors[5] = {right,front,left,back,imu};
 
