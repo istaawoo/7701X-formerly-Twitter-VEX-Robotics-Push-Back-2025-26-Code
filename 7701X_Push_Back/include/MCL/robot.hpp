@@ -75,6 +75,8 @@ public:
 
     void setPID(LatPID, TurnPID);
 
+    void waitUntil(double threshold);
+
     void place(float x, float y, float theta, gaussian errorLat, gaussian errorRot); //Put the robot at a starting position. initializes particle filter
     
     void checkStart(); //uses MCL to check and update starting position

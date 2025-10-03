@@ -27,9 +27,10 @@ Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wh
     this->turning_PID = turnPID;
 }
 
+
 void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian errorRot) {
-    robotPose.x = x;
-    robotPose.y = y;
+    getPose().x = x;
+    getPose().y = y;
     robotPose.theta = theta;
     
     robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
