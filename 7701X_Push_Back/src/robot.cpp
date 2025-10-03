@@ -27,10 +27,21 @@ Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wh
     this->turning_PID = turnPID;
 }
 
+void Robot::waitUntil(double threshold) {
+    while (true) {
+        double dx = targetPose.x - getPose().x;
+        double dy = targetPose.y - getPose().y;
+        double distance = sqrt(dx * dx + dy * dy);
+        if (abs(distance <= threshold)) {
+            break;
+        }
+        pros::delay(20);
+    }
+}
 
 void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian errorRot) {
-    getPose().x = x;
-    getPose().y = y;
+    robotPose.x = x;
+    robotPose.y = y;
     robotPose.theta = theta;
     
     robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
