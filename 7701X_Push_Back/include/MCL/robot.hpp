@@ -47,7 +47,7 @@ enum class TurnPID {
 class Robot {
 private:
     Pose robotPose;
-    particleFilter robotFilter = particleFilter(50,gaussian(3),gaussian(0.15));
+    particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15));
 public:
     double trackWidth;
     double trackLength;
@@ -81,20 +81,18 @@ public:
     
     void checkStart(); //uses MCL to check and update starting position
 
-    void move(float distance, float theta, int timeout, float maxSpeed,         // move a relative distance along a target heading
-    gaussian errorLat, gaussian errorRot);
+    void move(float distance, float theta, int timeout, float maxSpeed,                               // move a relative distance along a target heading
+              float earlyExitDelta, gaussian errorLat, gaussian errorRot);
 
-    void moveToPoint(float x, float y, int timeout);                            // move to global point with final heading along movement
+    void moveToPoint(float x, float y, int timeout, float earlyExitDelta);                            // move to global point with final heading along movement
     
-    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed, // move to global point with a target heading
-    float lead, float horizontalDrift);                                         
+    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed,                       // move to global point with a target heading
+                    float earlyExitDelta, float lead, float horizontalDrift);                                         
     
-    void turn(float thetaRelative, int timeout);                                // turn a relative angle
+    void turn(float thetaRelative, int timeout, float earlyExitDelta);                                // turn a relative angle
     
-    void turnTo(float thetaAbsolute, int timeout);                              // turn to an absolute heading
+    void turnTo(float thetaAbsolute, int timeout, float earlyExitDelta);                              // turn to an absolute heading
     
-    void turnToPoint(float x, float y, int timeout);                            // turn to face a global point
-
-
-
+    void turnToPoint(float x, float y, int timeout, float earlyExitDelta);                            // turn to face a global point
+    
 };

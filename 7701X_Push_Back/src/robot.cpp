@@ -37,6 +37,7 @@ void Robot::waitUntil(double threshold) {
         }
         pros::delay(20);
     }
+    finished = true;
 }
 
 void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian errorRot) {
@@ -59,7 +60,7 @@ void Robot::checkStart() {
 }
 
 //Move the robot a certian distance along a certian heading.
-void Robot::move(float distance, float theta, int timeout, float maxSpeed, gaussian errorLat, gaussian errorRot) { 
+void Robot::move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta, gaussian errorLat, gaussian errorRot) { 
     waitUntilFinished();
     finished = false;
     targetPose.x = getPose().x + distance * cos(theta); //gets the target x position by adding x component of movement vector with current position
@@ -92,7 +93,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, gauss
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout] {
+    pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dx = targetPose.x - getPose().x;
@@ -114,9 +115,10 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, gauss
             }
 
             // Check if PID is settled or timeout
-            if ((lat_pid->isSettled(distance - difference) 
+            if ((lat_pid->isSettled(difference) 
                 && turn_pid->isSettled(angleError)) 
-                || (pros::millis() - startTime > timeout)) {
+                || (pros::millis() - startTime > timeout)
+                || (difference < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -136,12 +138,12 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, gauss
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x, targetPose.y, targetPose.theta, errorLat, errorLat, errorRot);
-
+        pros::Task::current().remove();
     });
 }
 
 //Move the robot to a point with a heading along path of travel
-void Robot::moveToPoint(float x, float y, int timeout) {
+void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta) {
     waitUntilFinished();
     finished = false;
     targetPose.x = x;
@@ -175,7 +177,7 @@ void Robot::moveToPoint(float x, float y, int timeout) {
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, timeout] {
+    pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dx = targetPose.x - getPose().x;
@@ -199,7 +201,8 @@ void Robot::moveToPoint(float x, float y, int timeout) {
             // Check if PID is settled or timeout
             if ((lat_pid->isSettled(distance - difference) 
                 && turn_pid->isSettled(angleError)) 
-                || (pros::millis() - startTime > timeout)) {
+                || (pros::millis() - startTime > timeout)
+                || (difference < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -214,7 +217,7 @@ void Robot::moveToPoint(float x, float y, int timeout) {
 }
 
 //Move the robot to a point with a target heading
-void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float lead, float horizontalDrift) {
+void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float earlyExitDelta, float lead, float horizontalDrift) {
     waitUntilFinished();
     finished = false;
     targetPose.x = x;
@@ -248,7 +251,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveToPose([this, lat_pid, turn_pid, distance, lead, timeout]{
+    pros::Task moveToPose([this, lat_pid, turn_pid, distance, lead, timeout, earlyExitDelta]{
         int startTime = pros::millis();
         while (true) {
             double dx = targetPose.x - getPose().x;
@@ -283,7 +286,8 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             // Check if PID is settled or timeout
             if ((lat_pid->isSettled(distance - difference) 
                 && turn_pid->isSettled(angleError)) 
-                || (pros::millis() - startTime > timeout)) {
+                || (pros::millis() - startTime > timeout)
+                || (difference < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -298,7 +302,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
 }
 
 //Turn the robot an ammount relative to current heading
-void Robot::turn(float thetaRelative, int timeout) {
+void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta) {
     waitUntilFinished();
     finished = false;
     targetPose.x = getPose().x;
@@ -319,7 +323,7 @@ void Robot::turn(float thetaRelative, int timeout) {
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, timeout] {
+    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dtheta = targetPose.theta - getPose().theta;
@@ -334,7 +338,7 @@ void Robot::turn(float thetaRelative, int timeout) {
             }
 
             // Check if PID is settled or timeout
-            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout)) {
+            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (dtheta < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -349,7 +353,7 @@ void Robot::turn(float thetaRelative, int timeout) {
 }
 
 //Turn the robot to a global heading
-void Robot::turnTo(float thetaAbsolute, int timeout) {
+void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta) {
     waitUntilFinished();
     finished = false;
     targetPose.x = getPose().x;
@@ -370,7 +374,7 @@ void Robot::turnTo(float thetaAbsolute, int timeout) {
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, timeout] {
+    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dtheta = targetPose.theta - getPose().theta;
@@ -385,7 +389,7 @@ void Robot::turnTo(float thetaAbsolute, int timeout) {
             }
 
             // Check if PID is settled or timeout
-            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout)) {
+            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (dtheta < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -400,7 +404,7 @@ void Robot::turnTo(float thetaAbsolute, int timeout) {
 }
 
 //Turn the robot to face a global point
-void Robot::turnToPoint(float x, float y, int timeout) {
+void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta) {
     waitUntilFinished();
     finished = false;
     float dx = x - getPose().x;
@@ -421,7 +425,7 @@ void Robot::turnToPoint(float x, float y, int timeout) {
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, timeout] {
+    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dtheta = targetPose.theta - getPose().theta;
@@ -436,7 +440,7 @@ void Robot::turnToPoint(float x, float y, int timeout) {
             }
 
             // Check if PID is settled or timeout
-            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout)) {
+            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (dtheta < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
