@@ -15,6 +15,7 @@
 #include "pros/screen.hpp"
 #include "mcl/mcl.hpp"
 #include "mcl/robot.hpp"
+#include "main.cpp"
 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
@@ -304,6 +305,23 @@ void particleFilter::simSenses() {
     //updates weights of particles based on how likely they are to recieve the sensor data recieved
     void particleFilter::senseUpdate() {
         uint32_t start = pros::millis();
+        for(int i = 0; i<4; i++) { //Set readings for each distance sensor
+            if(robot.distances[i].get != errno) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
+                sensors[i].reading = robot.distances[i].get;
+                sensors[i].use = true;
+            } else {
+                sensors[i].use = false;
+            }
+        }
+        for(int i = 4; i<6; i++) { //Set readings for each inertial sensor
+             if(robot.imus[i-4].get != errno) { //checks reading is not an error.
+                sensors[i].reading = robot.imus[i-4].get_rotation;
+                sensors[i].use = true
+            } else {
+                sensors[i].use = false;
+            }
+            
+        }
         float totalWeight = 0; //defines a variable for the sum of all particle weights. Used in normalization 
         for(particle* p : particles) { //loops through each particle
             p->weight = 1; //sets weight to 1 initially so the *= can be used for sensors afterwards
