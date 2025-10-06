@@ -33,14 +33,18 @@
 #include "auton.hpp"
 
 void on_left_button() {
+    selectedAuton = (selectedAuton - 1 + autons.size()) % autons.size();
+    displayAutons();
 
 }
 
 void on_center_button() {
-	
+    selectedAuton = 1;
 }
 
 void on_right_button() {
+    selectedAuton = (selectedAuton + 1) % autons.size();
+    displayAutons();
 
 }
 
@@ -53,5 +57,12 @@ void displayFieldPose() {
 }
 
 void displayAutons() {
-    
+    pros::lcd::clear();
+    for (int i = 0; i < autons.size(); i++) {
+        if (i == selectedAuton) {
+            pros::lcd::print(i, "> %s", autons[i].name.c_str());
+        } else {
+            pros::lcd::print(i, "  %s", autons[i].name.c_str());
+        }
+    }
 }

@@ -40,17 +40,21 @@
 #include "src/mcl.cpp"
 #include "mcl/mcl.hpp"
 
+using namespace pros;
+
 //robot definitions
-pros::MotorGroup right_motors({1,2,3}, pros::MotorCartridge::blue);
-pros::MotorGroup left_motors({4,5,6}, pros::MotorCartridge::blue);
+MotorGroup right_motors({1,2,3}, MotorCartridge::blue);
+MotorGroup left_motors({4,5,6}, MotorCartridge::blue); 
 
 Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
 
+Controller controller;
+
 void initialize() { // runs initialization; keep execution time under three seconds
-	pros::lcd::initialize();
-	pros::lcd::register_btn0_cb(on_left_button);
-	pros::lcd::register_btn1_cb(on_center_button);
-	pros::lcd::register_btn2_cb(on_right_button);
+	lcd::initialize();
+	lcd::register_btn0_cb(on_left_button);
+	lcd::register_btn1_cb(on_center_button);
+	lcd::register_btn2_cb(on_right_button);
 	latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
 	latteral_low_qual.setExitConditions(1, 250, 5000);
@@ -60,19 +64,25 @@ void initialize() { // runs initialization; keep execution time under three seco
 	turning_low_qual.setExitConditions(1, 250, 1000);
 }
 
-void disabled() {} // task exits when robot is re-enabled
+void disabled() { // task exits when robot is re-enabled
 
-void competition_initialize() {} // pre-auton; ends when auton begins
+}
 
-void autonomous() { // auton; if disconnected the task will restart; not continue where stopped
+void competition_initialize() { // pre-auton; ends when auton begins
 
+}
+
+void autonomous() {
+    autons[selectedAuton].func();
 }
 
 void opcontrol() {
 
 	while (true) {
-		static int analogValueRightStickX = pros::E_CONTROLLER_ANALOG_RIGHT_X;
-		static int analogValueLeftStickY = pros::E_CONTROLLER_ANALOG_LEFT_Y;
+		static int rightStickX = E_CONTROLLER_ANALOG_RIGHT_X;
+		static int leftStickY = E_CONTROLLER_ANALOG_LEFT_Y;
+
+		
 		
 		
 		pros::delay(20);
