@@ -1,8 +1,8 @@
 #include "main.cpp"
 
 std::vector<Auton> autons = {
-    {"Left Auton", autonLeft},
-    {"Right Auton", autonRight},
+    {"Left Auton", autonLeft}, // auton 0
+    {"Right Auton", autonRight}, // auton 1
     {"Skills Auton", autonSkills}
 };
 
