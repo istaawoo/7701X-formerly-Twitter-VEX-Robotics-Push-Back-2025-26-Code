@@ -51,10 +51,6 @@ Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::la
 Controller controller;
 
 void initialize() { // runs initialization; keep execution time under three seconds
-	lcd::initialize();
-	lcd::register_btn0_cb(on_left_button);
-	lcd::register_btn1_cb(on_center_button);
-	lcd::register_btn2_cb(on_right_button);
 	latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
 	latteral_low_qual.setExitConditions(1, 250, 5000);
