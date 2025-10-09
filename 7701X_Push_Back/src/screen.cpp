@@ -32,6 +32,13 @@
 #include "mcl.hpp"
 #include "auton.hpp"
 
+void screenUpdate() {
+    pros::lcd::clear();
+    displayAutons();
+    displayFieldPose();
+    displayStats();
+}
+
 void on_left_button() {
     selectedAuton = (selectedAuton - 1 + autons.size()) % autons.size();
     displayAutons();
@@ -48,8 +55,8 @@ void on_right_button() {
 
 }
 
-void screenUpdate() {
-
+void displayStats() {
+    
 }
 
 void displayFieldPose() {
@@ -57,7 +64,6 @@ void displayFieldPose() {
 }
 
 void displayAutons() {
-    pros::lcd::clear();
     for (int i = 0; i < autons.size(); i++) {
         if (i == selectedAuton) {
             pros::lcd::print(i, "> %s", autons[i].name.c_str());

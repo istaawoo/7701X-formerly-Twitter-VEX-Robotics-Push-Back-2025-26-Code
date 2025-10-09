@@ -48,6 +48,11 @@ void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian err
     robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
 }
 
+void Robot::setPID(LatPID latPID, TurnPID turnPID) {
+    this->latteral_PID = latPID;
+    this->turning_PID = turnPID;
+}
+
 void waitUntilFinished() {
     if (!finished) {
         pros::delay(20);

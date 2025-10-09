@@ -1,9 +1,21 @@
 #include "main.cpp"
 
+
 std::vector<Auton> autons = {
-    {"Left Auton", autonLeft}, // auton 0
-    {"Right Auton", autonRight}, // auton 1
-    {"Skills Auton", autonSkills}
+    {"Right Solo AWP", auton1},
+    {"Right Center Goal Rush", auton2},
+    {"Right Long Goal Rush", auton3},
+    {"", auton4},
+    {"", auton5},
+    {"", auton6},
+    {"", auton7},
+    {"", auton8},
+    {"", auton9},
+    {"", auton10},
+    {"", auton11},
+    {"", auton12},
+    {"NO AUTON", noAuton},
+    {"SKILLS AUTON", skillsAuton},
 };
 
 int selectedAuton = 0;
@@ -45,6 +57,22 @@ void auton9() {
 }
 
 void auton10() {
+
+}
+
+void auton11() {
+
+}
+
+void auton12() {
+
+}
+
+void noAuton() {
+
+}
+
+void skillsAuton() {
 
 }
 

@@ -69,11 +69,11 @@ public:
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
     Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance,
-          pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID, TurnPID);
+          pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID latPID, TurnPID turnPID);
 
     Pose getPose();
 
-    void setPID(LatPID, TurnPID);
+    void setPID(LatPID latPDI, TurnPID turnPID);
 
     void waitUntil(double threshold);
 
