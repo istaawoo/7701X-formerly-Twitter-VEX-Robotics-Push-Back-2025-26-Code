@@ -306,17 +306,17 @@ void particleFilter::simSenses() {
     void particleFilter::senseUpdate() {
         uint32_t start = pros::millis();
         for(int i = 0; i<4; i++) { //Set readings for each distance sensor
-            if(robot.distances[i].get != errno) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
-                sensors[i].reading = robot.distances[i].get;
+            if(robot->distances[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
+                sensors[i].reading = robot->distances[i]->get();
                 sensors[i].use = true;
             } else {
                 sensors[i].use = false;
             }
         }
         for(int i = 4; i<6; i++) { //Set readings for each inertial sensor
-             if(robot.imus[i-4].get != errno) { //checks reading is not an error.
-                sensors[i].reading = robot.imus[i-4].get_rotation;
-                sensors[i].use = true
+             if(robot->imus[i-4]->get_rotation() != PROS_ERR) { //checks reading is not an error.
+                sensors[i].reading = robot->imus[i-4]->get_rotation();
+                sensors[i].use = true;
             } else {
                 sensors[i].use = false;
             }
