@@ -39,7 +39,7 @@ void screenUpdate() {
     displayStats();
 }
 
-void on_left_button() {
+void on_left_button() { //
     selectedAuton = (selectedAuton - 1 + autons.size()) % autons.size();
     displayAutons();
 
