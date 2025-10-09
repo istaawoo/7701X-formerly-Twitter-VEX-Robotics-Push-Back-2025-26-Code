@@ -15,7 +15,6 @@
 #include "pros/screen.hpp"
 #include "mcl/mcl.hpp"
 #include "mcl/robot.hpp"
-#include "main.cpp"
 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
@@ -120,6 +119,7 @@ void particleFilter::simSenses() {
 */
 
 //particleFilter class functions
+    /*
     void particleFilter::useSense(particle* p) { //Check this function
         uint32_t start = pros::millis();
         if(p->x>0 && p->y>0) { //Quadrant 1
@@ -194,7 +194,7 @@ void particleFilter::simSenses() {
         uint32_t end = pros::millis();
         useSenseTime += end - start;
     }
-
+    */
     void particleFilter::predictDistance(particle* p) {
         useSense(p);
         uint32_t start = pros::millis();
@@ -306,17 +306,17 @@ void particleFilter::simSenses() {
     void particleFilter::senseUpdate() {
         uint32_t start = pros::millis();
         for(int i = 0; i<4; i++) { //Set readings for each distance sensor
-            if(robot.distances[i].get != errno) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
-                sensors[i].reading = robot.distances[i].get;
+            if(robot->distances[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
+                sensors[i].reading = robot->distances[i]->get();
                 sensors[i].use = true;
             } else {
                 sensors[i].use = false;
             }
         }
         for(int i = 4; i<6; i++) { //Set readings for each inertial sensor
-             if(robot.imus[i-4].get != errno) { //checks reading is not an error.
-                sensors[i].reading = robot.imus[i-4].get_rotation;
-                sensors[i].use = true
+             if(robot->imus[i-4]->get_rotation() != PROS_ERR) { //checks reading is not an error.
+                sensors[i].reading = robot->imus[i-4]->get_rotation();
+                sensors[i].use = true;
             } else {
                 sensors[i].use = false;
             }
