@@ -27,11 +27,11 @@
 
 //include PID/movement utilities
 #include "pid.cpp"
-#include "pid.hpp"
+#include "mcl/pid.hpp"
 #include "mcl.cpp"
-#include "mcl.hpp"
-#include "auton.hpp"
-#include "screen.hpp"
+#include "mcl/mcl.hpp"
+#include "mcl/auton.hpp"
+#include "mcl/screen.hpp"
 #include "robot.cpp"
 // Sensor UI data structure
 struct SensorIcon {
