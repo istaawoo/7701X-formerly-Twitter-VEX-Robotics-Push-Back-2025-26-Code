@@ -47,7 +47,7 @@ enum class TurnPID {
 class Robot {
 private:
     Pose robotPose;
-    particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15));
+    //particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15));
 public:
     double trackWidth;
     double trackLength;

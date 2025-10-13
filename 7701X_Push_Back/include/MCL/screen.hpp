@@ -5,7 +5,7 @@
 class Button {
 public:
     Button(int x, int y, int width, int height, const char* text, std::function<void()> onPress);
-
+    
     void draw() const;
     void update(); // checks for presses
 
