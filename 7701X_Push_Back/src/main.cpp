@@ -46,8 +46,11 @@
 using namespace pros;
 
 //robot definitions
-MotorGroup right_motors({1,2,3}, MotorCartridge::blue);
-MotorGroup left_motors({4,5,6}, MotorCartridge::blue); 
+MotorGroup right_motors({11,12,13}, MotorCartridge::blue);
+MotorGroup left_motors({18,19,20}, MotorCartridge::blue); 
+
+MotorGroup intake1({1}, MotorCartridge::blue);
+MotorGroup intake2({21}, MotorCartridge::blue);
 
 Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
 
