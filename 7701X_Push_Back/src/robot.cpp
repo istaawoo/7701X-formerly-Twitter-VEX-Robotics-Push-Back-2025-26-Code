@@ -27,6 +27,8 @@ Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wh
     this->turning_PID = turnPID;
 }
 
+Pose targetPose(0, 0, 0);
+
 void Robot::waitUntil(double threshold) {
     while (true) {
         double dx = targetPose.x - getPose().x;
@@ -182,7 +184,7 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta) {
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
+    pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dx = targetPose.x - getPose().x;
@@ -256,7 +258,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveToPose([this, lat_pid, turn_pid, distance, lead, timeout, earlyExitDelta]{
+    pros::Task moveToPose([this, lat_pid, turn_pid, distance, &lead, &timeout, &earlyExitDelta]{
         int startTime = pros::millis();
         while (true) {
             double dx = targetPose.x - getPose().x;
@@ -328,7 +330,7 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta) {
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
+    pros::Task turnTask([this, turn_pid, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dtheta = targetPose.theta - getPose().theta;
@@ -379,7 +381,7 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta) {
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
+    pros::Task turnTask([this, turn_pid, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dtheta = targetPose.theta - getPose().theta;
@@ -430,7 +432,7 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta) {
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
+    pros::Task turnTask([this, turn_pid, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             double dtheta = targetPose.theta - getPose().theta;
@@ -463,4 +465,3 @@ Pose Robot::getPose() {
     return robotPose;
 }
 
-Pose targetPose(0, 0, 0);
