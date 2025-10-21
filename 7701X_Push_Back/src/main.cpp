@@ -27,18 +27,21 @@
 
 //include robot
 #include "mcl/robot.hpp"
-#include "robot.cpp"
+//#include "robot.cpp"
 
 //inlcude screen 
-#include "screen.cpp"
+#include "mcl/screen.hpp"
+//#include "screen.cpp"
 
 //include PID/movement utilities
-#include "pid.cpp"
+//#include "pid.cpp"
 #include "mcl/pid.hpp" 
 
 //include MCL stuff
-#include "mcl.cpp"
+//#include "mcl.cpp"
 #include "mcl/mcl.hpp"
+
+#include "mcl/auton.hpp"
 
 using namespace pros;
 
@@ -48,9 +51,10 @@ MotorGroup left_motors({4,5,6}, MotorCartridge::blue);
 
 Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
 
-Controller controller;
+Controller controller(pros::E_CONTROLLER_MASTER);
 
 void initialize() { // runs initialization; keep execution time under three seconds
+/*
 	latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
 	latteral_low_qual.setExitConditions(1, 250, 5000);
@@ -58,6 +62,7 @@ void initialize() { // runs initialization; keep execution time under three seco
 	turning_high_qual.setExitConditions(1, 250, 1000);
 	turning_med_qual.setExitConditions(1, 250, 1000);
 	turning_low_qual.setExitConditions(1, 250, 1000);
+*/
 }
 
 void disabled() { // task exits when robot is re-enabled

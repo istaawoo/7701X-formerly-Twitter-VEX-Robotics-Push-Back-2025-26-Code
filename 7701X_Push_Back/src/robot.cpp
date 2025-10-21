@@ -1,5 +1,5 @@
 #include "mcl/robot.hpp"
-#include "pid.cpp"
+#include "mcl/pid.hpp"
 #include <cmath>
 
 PID latteral_high_qual(1, 0, 1);  // lat_one

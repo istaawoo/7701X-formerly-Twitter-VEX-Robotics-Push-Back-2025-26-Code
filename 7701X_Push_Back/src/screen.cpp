@@ -26,13 +26,13 @@
 #include <stdio.h> // IWYU pragma: keep
 
 //include PID/movement utilities
-#include "pid.cpp"
+//#include "pid.cpp"
 #include "mcl/pid.hpp"
-#include "mcl.cpp"
+//#include "mcl.cpp"
 #include "mcl/mcl.hpp"
 #include "mcl/auton.hpp"
 #include "mcl/screen.hpp"
-#include "robot.cpp"
+//#include "robot.cpp"
 // Sensor UI data structure
 struct SensorIcon {
     int x, y, r; // position and radius
