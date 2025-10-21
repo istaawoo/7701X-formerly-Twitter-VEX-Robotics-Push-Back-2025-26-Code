@@ -9,9 +9,10 @@
 #include "pros/optical.hpp"
 #include "pros/motors.hpp"
 #include "pros/motor_group.hpp"
-#include "mcl/mcl.hpp"
+//#include "mcl/mcl.hpp"
+#include "mcl/pose.hpp"
 
-
+/*
 class Pose { //Variable that stores and x, y and theta position
 public:
     float x;     //x-cord
@@ -32,6 +33,8 @@ public:
         this->theta = other.theta;
     }
 };
+
+*/
 
 enum class LatPID {
     lat_one = 1,
@@ -65,8 +68,8 @@ public:
     std::vector<std::unique_ptr<pros::Imu>> imus;
     std::vector<std::unique_ptr<pros::Rotation>> rotations;
     std::vector<std::unique_ptr<pros::Distance>> distances;
-    std::vector<std::unique_ptr<pros::ADIAnalogIn>> adiIns;
-    std::vector<std::unique_ptr<pros::ADIDigitalOut>> adiOuts;
+    std::vector<std::unique_ptr<pros::adi::AnalogIn>> adiIns;
+    std::vector<std::unique_ptr<pros::adi::DigitalOut>> adiOuts;
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
     Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mcl/robot.hpp"
+#include "mcl/pose.hpp"
 #include <vector>
 #include <variant>
 
@@ -10,11 +11,6 @@ struct sensor { //defines a sensor position with offset from center of roation i
     bool use = true;
 
     sensor(float offX_, float offY_, float face_, float stanDev_) : offX(offX_), offY(offY_), face(face_), stanDev(stanDev_) {}
-};
-
-struct gaussian { //defines a gaussian with a mean and standard deviation
-    float mean, stanDev;
-    gaussian(float stanDev_, float mean_ = 0) : stanDev(stanDev_), mean(mean_) {}
 };
 
 void updateSenseData(double rightSensor, double frontSensor, double leftSensor, double backSensor, double rotSensor);
@@ -71,7 +67,7 @@ class particleFilter {
 private:
     const int maxParticles; //Number of particles in the filter
     std::vector<particle*> particles; //create a vector of all the particles
-    robot::Pose position;
+    Pose position;
     Robot* robot;
 
 public:
@@ -99,7 +95,7 @@ public:
     gaussian statNoiseRot;
 
     particleFilter(Robot* robotPtr, int total, gaussian statNoiseL, gaussian statNoiseR) : robot(robotPtr), statNoiseLinear(statNoiseL), statNoiseRot(statNoiseR), 
-    maxParticles(total), robot::Pose position(0,0,0) {}
+    maxParticles(total) {}
 
     void initializeParticles(float initialX, float initialY, float initialTheta, 
                             gaussian errorX, gaussian errorY, gaussian errorTheta);
