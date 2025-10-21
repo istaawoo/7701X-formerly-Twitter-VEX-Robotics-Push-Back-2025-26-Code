@@ -6,7 +6,6 @@
 #include "pros/distance.hpp" // IWYU pragma: keep
 #include "pros/imu.h"  // IWYU pragma: keep
 #include "pros/imu.hpp"
-#include "pros/llemu.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h" // IWYU pragma: keep
 #include "pros/motors.hpp"
