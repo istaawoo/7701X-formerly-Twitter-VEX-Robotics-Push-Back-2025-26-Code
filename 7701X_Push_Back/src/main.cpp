@@ -33,11 +33,11 @@
 #include "screen.cpp"
 
 //include PID/movement utilities
-#include "src/pid.cpp"
+#include "pid.cpp"
 #include "mcl/pid.hpp" 
 
 //include MCL stuff
-#include "src/mcl.cpp"
+#include "mcl.cpp"
 #include "mcl/mcl.hpp"
 
 using namespace pros;

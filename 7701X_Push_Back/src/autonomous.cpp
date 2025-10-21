@@ -1,5 +1,4 @@
-#include "main.cpp"
-
+#include "mcl/auton.hpp"
 
 std::vector<Auton> autons = {
     {"Right Solo AWP", auton1},
