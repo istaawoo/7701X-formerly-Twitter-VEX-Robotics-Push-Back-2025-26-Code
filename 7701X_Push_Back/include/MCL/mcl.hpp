@@ -71,7 +71,7 @@ class particleFilter {
 private:
     const int maxParticles; //Number of particles in the filter
     std::vector<particle*> particles; //create a vector of all the particles
-    Pose position;
+    robot::Pose position;
     Robot* robot;
 
 public:
@@ -99,7 +99,7 @@ public:
     gaussian statNoiseRot;
 
     particleFilter(Robot* robotPtr, int total, gaussian statNoiseL, gaussian statNoiseR) : robot(robotPtr), statNoiseLinear(statNoiseL), statNoiseRot(statNoiseR), 
-    maxParticles(total), position(0,0,0) {}
+    maxParticles(total), robot::Pose position(0,0,0) {}
 
     void initializeParticles(float initialX, float initialY, float initialTheta, 
                             gaussian errorX, gaussian errorY, gaussian errorTheta);

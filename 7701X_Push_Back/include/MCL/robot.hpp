@@ -11,6 +11,7 @@
 #include "pros/motor_group.hpp"
 #include "mcl/mcl.hpp"
 
+
 class Pose { //Variable that stores and x, y and theta position
 public:
     float x;     //x-cord
