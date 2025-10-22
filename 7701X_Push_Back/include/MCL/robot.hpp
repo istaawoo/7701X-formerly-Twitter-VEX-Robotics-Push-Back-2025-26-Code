@@ -9,8 +9,8 @@
 #include "pros/optical.hpp"
 #include "pros/motors.hpp"
 #include "pros/motor_group.hpp"
-#include "mcl/mcl.hpp"
 #include "mcl/pose.hpp"
+#include "mcl/mcl.hpp"
 
 /*
 class Pose { //Variable that stores and x, y and theta position
@@ -51,7 +51,8 @@ enum class TurnPID {
 class Robot {
 private:
     Pose robotPose;
-    particleFilter robotFilter = particleFilter(this, 50, gaussian(3), gaussian(0.15));
+    particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15), &this->imus, &this->mclDistances);
+
 public:
     double trackWidth;
     double trackLength;
@@ -67,6 +68,7 @@ public:
 
     std::vector<std::unique_ptr<pros::Imu>> imus;
     std::vector<std::unique_ptr<pros::Rotation>> rotations;
+    std::vector<std::unique_ptr<pros::Distance>> mclDistances;
     std::vector<std::unique_ptr<pros::Distance>> distances;
     std::vector<std::unique_ptr<pros::adi::AnalogIn>> adiIns;
     std::vector<std::unique_ptr<pros::adi::DigitalOut>> adiOuts;

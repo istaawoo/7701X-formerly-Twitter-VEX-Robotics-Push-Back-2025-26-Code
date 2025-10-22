@@ -1,5 +1,6 @@
 #include "mcl/robot.hpp"
 #include "mcl/pid.hpp"
+#include "mcl/mcl.hpp"
 #include <cmath>
 
 PID latteral_high_qual(1, 0, 1);  // lat_one
@@ -131,6 +132,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
                     left_motors->move(0);
                     right_motors->move(0);
                 }
+                
                 robotFilter.senseUpdate();
                 robotPose = robotFilter.predictPosition();
                 finished = true;

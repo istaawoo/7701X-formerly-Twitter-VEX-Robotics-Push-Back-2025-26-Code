@@ -1,5 +1,6 @@
 #pragma once
 
+//#include "mcl/robot.hpp"
 #include "mcl/pose.hpp"
 #include <vector>
 #include <variant>
@@ -67,7 +68,6 @@ private:
     const int maxParticles; //Number of particles in the filter
     std::vector<particle*> particles; //create a vector of all the particles
     Pose position;
-    Robot* robot;
 
 public:
     int move = 0;
@@ -82,6 +82,9 @@ public:
     uint32_t resampleTime = 0; //Resampling time
     uint32_t executionTime = 0; //Total run time
 
+    std::vector<std::unique_ptr<pros::Imu>>* robotImus;
+    std::vector<std::unique_ptr<pros::Distance>>* robotDistances;
+
     float sensorSim(sensor sensor);
 
     void simSenses();
@@ -93,8 +96,8 @@ public:
     gaussian statNoiseLinear;
     gaussian statNoiseRot;
 
-    particleFilter(Robot* robotPtr, int total, gaussian statNoiseL, gaussian statNoiseR) : robot(robotPtr), statNoiseLinear(statNoiseL), statNoiseRot(statNoiseR), 
-    maxParticles(total) {}
+    particleFilter(int total, gaussian statNoiseL, gaussian statNoiseR, std::vector<std::unique_ptr<pros::Imu>>* imus, std::vector<std::unique_ptr<pros::Distance>>* distances) : 
+    statNoiseLinear(statNoiseL), statNoiseRot(statNoiseR), maxParticles(total), robotImus(imus), robotDistances(distances) {} //right(0,0,0,1), front(0,0,0.5*M_PI,1), left(0,0,M_PI,1), back(0,0,1.5*M_PI,1), imu1(0,0,0,M_PI/20), imu2(0,0,0,M_PI/20)
 
     void initializeParticles(float initialX, float initialY, float initialTheta, 
                             gaussian errorX, gaussian errorY, gaussian errorTheta);

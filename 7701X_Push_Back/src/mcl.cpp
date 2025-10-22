@@ -14,7 +14,6 @@
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
 #include "mcl/mcl.hpp"
-#include "mcl/robot.hpp"
 
 #include <cmath>
 #include <iostream> // IWYU pragma: keep
@@ -28,15 +27,6 @@
 std::random_device rd; //uses device randomizer for seed
 std::mt19937 gen(7701); //fixed seed for now, will use rd() later
 
-sensor right(0,0,90,1);
-sensor front(0,0,0,1);
-sensor left(0,0,270,1);
-sensor back(0,0,180,1);
-sensor imu1(0,0,0,1);
-sensor imu2(0,0,0,1);
-
-sensor sensors[6] = {right,front,left,back,imu1,imu2};
-
 /*
 void updateSenseData(float rightSensor, float frontSensor, float leftSensor, float backSensor, float imu1, float imu2) {
     sensors[0].reading = rightSensor;
@@ -47,6 +37,15 @@ void updateSenseData(float rightSensor, float frontSensor, float leftSensor, flo
     sensors[5].reading = imu2;
 }
 */
+
+sensor right(0,0,0,1);
+sensor front(0,0,0.5*M_PI,1);
+sensor left(0,0,M_PI,1);
+sensor back(0,0,1.5*M_PI,1);
+sensor imu1(0,0,0,M_PI/20);
+sensor imu2(0,0,0,M_PI/20);
+
+sensor sensors[6] = {right,front,left,back,imu1,imu2};
 
 float randError(gaussian error) { //Uses a gaussian distribution of error to output a random value in that distribution
     std::normal_distribution<float> dist(error.mean,error.stanDev); 
@@ -200,7 +199,7 @@ void particleFilter::simSenses() {
     }
     */
     void particleFilter::predictDistance(particle* p) {
-        useSense(p);
+        //useSense(p); //Function depricated for now
         uint32_t start = pros::millis();
         for(int k; k < 4; k++) {
             if(sensors[k].use = true) {
@@ -311,21 +310,20 @@ void particleFilter::simSenses() {
     void particleFilter::senseUpdate() {
         uint32_t start = pros::millis();
         for(int i = 0; i<4; i++) { //Set readings for each distance sensor
-            if(robot->distances[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
-                sensors[i].reading = robot->distances[i]->get();
+            if((*robotDistances)[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
+                sensors[i].reading = (*robotDistances)[i]->get();
                 sensors[i].use = true;
             } else {
                 sensors[i].use = false;
             }
         }
-        for(int i = 4; i<6; i++) { //Set readings for each inertial sensor
-             if(robot->imus[i-4]->get_rotation() != PROS_ERR) { //checks reading is not an error.
-                sensors[i].reading = robot->imus[i-4]->get_rotation();
-                sensors[i].use = true;
+        for(int i = 0; i<2; i++) { //Set readings for each inertial sensor
+             if((*robotImus)[i]->get_rotation() != PROS_ERR) { //checks reading is not an error.
+                sensors[i+4].reading = (*robotImus)[i]->get_rotation();
+                sensors[i+4].use = true;
             } else {
-                sensors[i].use = false;
+                sensors[i+4].use = false;
             }
-            
         }
         float totalWeight = 0; //defines a variable for the sum of all particle weights. Used in normalization 
         for(particle* p : particles) { //loops through each particle
