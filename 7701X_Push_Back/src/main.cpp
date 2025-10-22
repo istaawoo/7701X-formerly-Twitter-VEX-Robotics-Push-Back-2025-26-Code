@@ -57,6 +57,24 @@ Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::la
 Controller controller(pros::E_CONTROLLER_MASTER);
 
 void initialize() { // runs initialization; keep execution time under three seconds
+    //Initializes IMUs and Distance sensors and adds them to the robot sensor vectors
+    Imu imu1(8);
+    robot.imus.push_back(std::make_unique<Imu>(1));
+    Imu imu2(2);
+    robot.imus.push_back(std::make_unique<Imu>(2));
+
+    Distance right(3);
+    robot.distances.push_back(std::make_unique<Distance>(3));
+    Distance front(4);
+    robot.distances.push_back(std::make_unique<Distance>(4));
+    Distance left(5);
+    robot.distances.push_back(std::make_unique<Distance>(5));
+    Distance back(6);
+    robot.distances.push_back(std::make_unique<Distance>(6));
+
+    //calibrate IMUs
+    imu1.reset();
+    imu2.reset();
 /*
 	latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
@@ -77,7 +95,8 @@ void competition_initialize() { // pre-auton; ends when auton begins
 }
 
 void autonomous() {
-    autons[selectedAuton].func();
+    //autons[selectedAuton].func();
+    robot.move(24, 0, 2000, 1.0, 0, {0,1}, {0,5});
 }
 
 void opcontrol() {
@@ -120,9 +139,6 @@ void opcontrol() {
 
 		left_motors.move(rightStickX - leftStickY);
 		right_motors.move(rightStickX + leftStickY);
-
-		
-		
 		
 		pros::delay(20);
 	}

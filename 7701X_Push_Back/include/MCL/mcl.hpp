@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mcl/robot.hpp"
 #include "mcl/pose.hpp"
 #include <vector>
 #include <variant>

@@ -37,13 +37,16 @@ sensor imu2(0,0,0,1);
 
 sensor sensors[6] = {right,front,left,back,imu1,imu2};
 
-void updateSenseData(float rightSensor, float frontSensor, float leftSensor, float backSensor, float rotSensor) {
+/*
+void updateSenseData(float rightSensor, float frontSensor, float leftSensor, float backSensor, float imu1, float imu2) {
     sensors[0].reading = rightSensor;
     sensors[1].reading = frontSensor;
     sensors[2].reading = leftSensor;
     sensors[3].reading = backSensor;
-    sensors[4].reading = rotSensor;
+    sensors[4].reading = imu1;
+    sensors[5].reading = imu2;
 }
+*/
 
 float randError(gaussian error) { //Uses a gaussian distribution of error to output a random value in that distribution
     std::normal_distribution<float> dist(error.mean,error.stanDev); 
@@ -237,14 +240,15 @@ void particleFilter::simSenses() {
     }
 
     //moves the particles to a positions randomly offset from target position.
-    void particleFilter::moveUpdate(float targetX, float targetY, float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
+    void particleFilter::moveUpdate(float dx, float dy, float dtheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
         uint32_t start = pros::millis();
         for(particle* p : particles) {
             float initialTheta = p->theta;
-            p->x = targetX + randError(errorX);
-            p->y += targetY + randError(errorY);
-            p->theta = targetTheta + targetTheta + randError(errorTheta);
+            p->x += dx + randError(errorX);
+            p->y += dy + randError(errorY);
+            p->theta += dtheta + randError(errorTheta);
             p->expSense[4] += p->theta - initialTheta;
+            p->expSense[5] += p->theta - initialTheta;
             predictDistance(p);
         }
         uint32_t end = pros::millis();

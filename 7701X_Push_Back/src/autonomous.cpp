@@ -1,4 +1,5 @@
 #include "mcl/auton.hpp"
+#include "mcl/robot.hpp"
 
 std::vector<Auton> autons = {
     {"Right Solo AWP", auton1},
@@ -20,7 +21,7 @@ std::vector<Auton> autons = {
 int selectedAuton = 0;
 
 void auton1() {
-
+   
 }
 
 void auton2() {

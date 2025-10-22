@@ -47,7 +47,7 @@ void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian err
     robotPose.y = y;
     robotPose.theta = theta;
     
-    //robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
+    robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
 }
 
 void Robot::setPID(LatPID latPID, TurnPID turnPID) {
@@ -62,8 +62,8 @@ void waitUntilFinished() {
 }
 
 void Robot::checkStart() {
-    //robotFilter.senseUpdate();
-    //robotPose = robotFilter.predictPosition();
+    robotFilter.senseUpdate();
+    robotPose = robotFilter.predictPosition();
 }
 
 //Move the robot a certian distance along a certian heading.
@@ -131,20 +131,19 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
                     left_motors->move(0);
                     right_motors->move(0);
                 }
-                //robotFilter.senseUpdate();
-                //robotPose = robotFilter.predictPosition();
+                robotFilter.senseUpdate();
+                robotPose = robotFilter.predictPosition();
                 finished = true;
                 break;
             }
             pros::delay(20);
         }
     });
-    
 
     pros::Task moveTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
-        //robotFilter.resample();
-        //robotFilter.moveUpdate(targetPose.x, targetPose.y, targetPose.theta, errorLat, errorLat, errorRot);
+        robotFilter.resample();
+        robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
 }

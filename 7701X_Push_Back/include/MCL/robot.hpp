@@ -9,7 +9,7 @@
 #include "pros/optical.hpp"
 #include "pros/motors.hpp"
 #include "pros/motor_group.hpp"
-//#include "mcl/mcl.hpp"
+#include "mcl/mcl.hpp"
 #include "mcl/pose.hpp"
 
 /*
@@ -51,7 +51,7 @@ enum class TurnPID {
 class Robot {
 private:
     Pose robotPose;
-    //particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15));
+    particleFilter robotFilter = particleFilter(this, 50, gaussian(3), gaussian(0.15));
 public:
     double trackWidth;
     double trackLength;
