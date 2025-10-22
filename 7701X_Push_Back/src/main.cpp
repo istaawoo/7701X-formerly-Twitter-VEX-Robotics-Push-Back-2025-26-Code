@@ -92,8 +92,7 @@ void competition_initialize() { // pre-auton; ends when auton begins
 }
 
 void autonomous() {
-    //autons[selectedAuton].func();
-    robot.move(24, 0, 2000, 1.0, 0, {0,1}, {0,5});
+    autons[selectedAuton].func();
 }
 
 void opcontrol() {

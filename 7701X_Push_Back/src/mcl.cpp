@@ -53,30 +53,30 @@ float randError(gaussian error) { //Uses a gaussian distribution of error to out
 }
 
 float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray origin x, y and direction angle
-    int xMin = -72; //Min X bound of the field (bottom left corner)
-    int yMin = -72; //Min Y bound of the field (bottom left corner)
-    int xMax = 72;  //Max X bound of the field (top right corner)
-    int yMax = 72;  //Max Y bound of the field (top right corner)
+    int xMin = -1828; //Min X bound of the field (bottom left corner)
+    int yMin = -1828; //Min Y bound of the field (bottom left corner)
+    int xMax = 1828;  //Max X bound of the field (top right corner)
+    int yMax = 1828;  //Max Y bound of the field (top right corner)
     //These values make the center of the field (0,0)
 
-    float dx = cos(rayAngle*M_PI/180); //The rate of change in x of the ray
-    float dy = sin(rayAngle*M_PI/180); //The rate of change in y of the ray
+    float dx = cos(rayAngle); //The rate of change in x of the ray
+    float dy = sin(rayAngle); //The rate of change in y of the ray
 
     float tX;
     float tY;
 
     if(dx>0) { //Checks if the x is going in positive direction and thus towards right wall
-        tX = (xMax-orginX)/dx; //at what t it intersects the right wall line (not segment)
+        tX = (xMax-orginX*25.4)/dx; //at what t it intersects the right wall line (not segment), (25.4 converts from inches to mm)
     } else if(dx<0) { //Checks if the x is going in negative direction and thus towards left wall
-        tX = (xMin-orginX)/dx; //at what t it intersects the left wall line (not segment)
+        tX = (xMin-orginX*25.4)/dx; //at what t it intersects the left wall line (not segment), (25.4 converts from inches to mm)
     } else {
         tX = std::numeric_limits<float>::infinity();
     }
 
     if(dy>0) { //Checks if the y is going in the positive direction and thus towards the far wall
-        tY = (yMax-orginY)/dy; //at what t it intersects the far wall line (not segment)
+        tY = (yMax-orginY*25.4)/dy; //at what t it intersects the far wall line (not segment), (25.4 converts from inches to mm)
     } else if(dy<0) { //Only option left is going towards the near wall
-        tY = (yMin-orginY)/dy; //at what t it intersects the near wall line (not segment)
+        tY = (yMin-orginY*25.4)/dy; //at what t it intersects the near wall line (not segment), (25.4 converts from inches to mm)
     } else {
         tY = std::numeric_limits<float>::infinity();
     }
@@ -86,129 +86,12 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     return tMin;
 }
 
-float restrainAngle(float theta) { //Confines an angle to between -360 and 360
-    return theta-360*floor(theta/360);
-}
-
-float closerTarget(float theta, float targetTheta) { //Returns a target theta that is greater than theta if the difference is shorter that way
-    if(abs(targetTheta+360-theta) < abs(targetTheta-theta)) {
-        return targetTheta+360;
-    } else {
-        return targetTheta;
-    }
-}
-
-//particle class functions
-void particle::avg(particle p1, particle p2) {
-    float totalWeight = p1.weight + p2.weight;
-    float comboWeight = p1.weight*p2.weight;
-    p1.weight /= totalWeight;
-    p2.weight /= totalWeight;
-    particle avg(p1.x*p1.weight+p2.x*p2.weight,p1.y*p1.weight+p2.y*p2.weight,p1.theta*p1.weight+p2.theta*p2.weight,comboWeight);
-}
-
-void particle::moveUpdate(float dx, float dy, float dtheta) { //moves a particle by an ammount dx, dy, and dtheta
-    x+=dx;
-    y+=dy;
-    theta+=dtheta;
-}
-
-/*Sim robot for testing functions
-void particleFilter::simSenses() {
-    for(int k; k < 4; k++) {        
-        sensors[k].reading = rayCastWalls(robot.x+sensors[k].offX,robot.y+sensors[k].offY,robot.theta+sensors[k].face) + randError(sensors[k].stanDev);
-    }
-}
-*/
-
-//particleFilter class functions
-    /*
-    void particleFilter::useSense(particle* p) { //Check this function
-        uint32_t start = pros::millis();
-        if(p->x>0 && p->y>0) { //Quadrant 1
-            if(45 <= p->theta < 225) {
-                sensors[2].use = true;
-                sensors[0].use = false;
-            } else {
-                sensors[2].use = false;
-                sensors[0].use = true;
-            }
-            if(135 <= p->theta < 315) {
-                sensors[3].use = true;
-                sensors[1].use = false;
-            } else {
-                sensors[3].use = false;
-                sensors[1].use = true;
-            }
-        }
-        if(p->x>0 & p->y<0) { //Quadrant 2
-            if(45 < p->theta < 225) {
-                sensors[1].use = true;
-                sensors[3].use = false;
-            } else {
-                sensors[1].use = false;
-                sensors[3].use = true;
-            }
-            if(135 < p->theta < 315) {
-                sensors[2].use = true;
-                sensors[0].use = false;
-            } else {
-                sensors[2].use = false;
-                sensors[0].use = true;
-            }
-        }
-        if(p->x<0 & p->y<0) { //Quadrant 3
-            if(45 < p->theta < 225) {
-                sensors[0].use = true;
-                sensors[2].use = false;
-            } else {
-                sensors[0].use = false;
-                sensors[2].use = true;
-            }
-            if(135 < p->theta < 315) {
-                sensors[1].use = true;
-                sensors[3].use = false;
-            } else {
-                sensors[1].use = false;
-                sensors[3].use = true;
-            }
-        }
-        if(p->x>0 & p->y>0) { //Quadrant 2
-            if(45 < p->theta < 225) {
-                sensors[3].use = true;
-                sensors[1].use = false;
-            } else {
-                sensors[3].use = false;
-                sensors[1].use = true;
-            }
-            if(135 < p->theta < 315) {
-                sensors[0].use = true;
-                sensors[2].use = false;
-            } else {
-                sensors[0].use = false;
-                sensors[2].use = true;
-            }
-        }
-        for(int k; k < 4; k++) {
-            if(sensors[k].reading > 72) {
-                sensors[k].use = false;
-            }
-        }
-        uint32_t end = pros::millis();
-        useSenseTime += end - start;
-    }
-    */
     void particleFilter::predictDistance(particle* p) {
         //useSense(p); //Function depricated for now
         uint32_t start = pros::millis();
         for(int k; k < 4; k++) {
             if(sensors[k].use = true) {
                 float distance = rayCastWalls(p->x+sensors[k].offX,p->y+sensors[k].offY,p->theta+sensors[k].face);
-                if(distance < 72) {
-                    p->expSense[k] = distance;
-                } else {
-                    sensors[k].use = false;
-                }
             }
         }
         uint32_t end = pros::millis();
@@ -218,14 +101,6 @@ void particleFilter::simSenses() {
     //Adds particles at a starting location with random setup error;
     void particleFilter::initializeParticles(float initialX, float initialY, float initialTheta, 
                                             gaussian errorX, gaussian errorY, gaussian errorTheta) {
-        /*SIM ROBOT, testing only
-        robot.x = initialX + randError(errorX);
-        robot.y = initialY + randError(errorY);
-        robot.theta = initialTheta + randError(errorTheta);
-        simSenses();
-        sensors[4].reading = 0;
-        */
-
         for(int p; p < maxParticles; p++) {
             float x_ = initialX + randError(errorX);
             float y_ = initialY + randError(errorY);
@@ -254,14 +129,8 @@ void particleFilter::simSenses() {
         moveTime = end - start - predictSenseTime - useSenseTime;
     }
 
+    //Probably not worth the extra math, more accurate.
     void particleFilter::turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
-        /* Sim robot, testing only
-        robot.x += randError(errorX);
-        robot.y += randError(errorY);
-        robot.theta = targetTheta + randError(errorTheta);
-        simSenses();
-        */
-
         uint32_t start = pros::millis();
         for(particle* p : particles) {
             float initialTheta = p->theta;
@@ -275,20 +144,8 @@ void particleFilter::simSenses() {
         moveTime = end - start - predictSenseTime - useSenseTime;
     }
 
+    //Probably not worth the extra math, more accurate.
     void particleFilter::driveDistMoveUpdate(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta) {
-        /* Sim robot, testing only
-        float initialTheta = robot.theta;
-        float dist = targetDistance + randError(errorDistance); //predicted inches moved in this update plus random error
-        float drift = randError(errorDrift); //calculates random drift error
-        float angleShift = atan2(drift,dist); //how much the actual heading of the move shifted during the move
-        float actualDist = sqrt(dist*dist+drift*drift); //the actual distance traveled based on move error and drift
-        robot.x += cos(robot.theta-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
-        robot.y += sin(robot.theta-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
-        robot.theta += randError(errorTheta); //adds random error to particle angle.
-        simSenses();
-        sensors[4].reading = robot.theta - initialTheta + randError(sensors[4].stanDev);
-        */
-        
         uint32_t start = pros::millis(); //move update start time
         for(particle* p : particles) {
             float initialTheta = p->theta;
@@ -325,6 +182,7 @@ void particleFilter::simSenses() {
                 sensors[i+4].use = false;
             }
         }
+        
         float totalWeight = 0; //defines a variable for the sum of all particle weights. Used in normalization 
         for(particle* p : particles) { //loops through each particle
             p->weight = 1; //sets weight to 1 initially so the *= can be used for sensors afterwards
@@ -361,7 +219,6 @@ void particleFilter::simSenses() {
     //resamples the particles, favoring those with high weights and adding some noise. Converges particles on likely robot position.
     void particleFilter::resample() {
         u_int32_t startTime = pros::millis();
-        //std::vector<particle*> resampledParticles; //defines a vector of resampled particles
 
         float step = 1.0/particles.size(); //Regular step ammount
         std::uniform_real_distribution<float> dist(0,step); //defines a random number range from 0 to the step. 
@@ -375,19 +232,11 @@ void particleFilter::simSenses() {
                 index++; //moves down the list of particles
                 cumulativeWeight += particles[index]->weight; //adds next particles weight to get the cumulative weight for that particle to check again
             }
+            //adds some noise to the resampled particles
             particles[p]->x = particles[index]->x +randError(statNoiseLinear);
-            particles[p]->y= particles[index]->y +randError(statNoiseLinear);
+            particles[p]->y = particles[index]->y +randError(statNoiseLinear);
             particles[p]->theta = particles[index]->theta +randError(statNoiseRot);
-            //particle* resampledPart = new particle(*particles[index]);
-            //resampledParticles.push_back(resampledPart);
-
-            //Adds some noise to the resampled particles
-            //resampledParticles[p]->x += randError(statNoiseLinear);
-            //resampledParticles[p]->y += randError(statNoiseLinear);
-            //resampledParticles[p]->theta += randError(statNoiseRot);
         }
-        //for (particle* p : particles) delete p; //clears the old particles
-        //particles = resampledParticles; //redifines the particle vector as the resampled vector
 
         uint32_t end = pros::millis();
         resampleTime = end - startTime;
