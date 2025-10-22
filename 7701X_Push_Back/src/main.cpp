@@ -46,8 +46,8 @@
 using namespace pros;
 
 //robot definitions
-MotorGroup right_motors({18,19,20}, MotorCartridge::blue);
-MotorGroup left_motors({11,12,13}, MotorCartridge::blue); 
+MotorGroup right_motors({18, 19, 20}, MotorCartridge::blue);
+MotorGroup left_motors({-11, -12, -13}, MotorCartridge::blue); 
 
 MotorGroup intake1({-1}, MotorCartridge::blue);
 MotorGroup intake2({-21}, MotorCartridge::blue);
@@ -118,8 +118,8 @@ void opcontrol() {
             }
         }
 
-		left_motors.move(rightStickX - leftStickY);
-		right_motors.move(rightStickX + leftStickY);
+		left_motors.move(leftStickY + rightStickX);
+		right_motors.move(leftStickY - rightStickX);
 
 		
 		
