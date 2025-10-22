@@ -46,11 +46,11 @@
 using namespace pros;
 
 //robot definitions
-MotorGroup right_motors({11,12,13}, MotorCartridge::blue);
-MotorGroup left_motors({18,19,20}, MotorCartridge::blue); 
+MotorGroup right_motors({18,19,20}, MotorCartridge::blue);
+MotorGroup left_motors({11,12,13}, MotorCartridge::blue); 
 
-MotorGroup intake1({1}, MotorCartridge::blue);
-MotorGroup intake2({21}, MotorCartridge::blue);
+MotorGroup intake1({-1}, MotorCartridge::blue);
+MotorGroup intake2({-21}, MotorCartridge::blue);
 
 Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
 
@@ -82,9 +82,44 @@ void autonomous() {
 
 void opcontrol() {
 
+	bool shift = false;
+
 	while (true) {
-		static int rightStickX = E_CONTROLLER_ANALOG_RIGHT_X;
-		static int leftStickY = E_CONTROLLER_ANALOG_LEFT_Y;
+		static int rightStickX = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+		static int leftStickY = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+
+		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {shift = true;} else {shift = false;}
+
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            if (!shift) {
+                intake1.move_voltage(-12000); // 
+                intake2.move_voltage(12000);
+            } else {
+                intake1.move_voltage(-12000); //
+                intake2.move_voltage(-12000);
+            }
+        } else if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+                intake1.brake();
+                intake2.brake();
+        }
+
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            if (!shift) {
+                intake1.move_voltage(12000);
+                intake2.move_voltage(12000);
+            } else {
+                intake1.move_voltage(-12000);
+                intake2.move_voltage(12000);
+            }
+        } else {
+            if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+                intake1.brake();
+                intake2.brake();
+            }
+        }
+
+		left_motors.move(rightStickX - leftStickY);
+		right_motors.move(rightStickX + leftStickY);
 
 		
 		
