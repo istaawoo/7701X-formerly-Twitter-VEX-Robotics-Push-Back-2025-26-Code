@@ -465,4 +465,3 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta) {
 Pose Robot::getPose() {
     return robotPose;
 }
-

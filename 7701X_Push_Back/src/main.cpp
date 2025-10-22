@@ -27,20 +27,17 @@
 
 //include robot
 #include "mcl/robot.hpp"
-//#include "robot.cpp"
 
 //inlcude screen 
-#include "mcl/screen.hpp" 
-//#include "screen.cpp"
+#include "mcl/screen.hpp"
 
 //include PID/movement utilities
-//#include "pid.cpp"
 #include "mcl/pid.hpp" 
 
-//include MCL stuff
-//#include "mcl.cpp"
+//include MCL stuff (Only needed in robot, don't need in main)
 //#include "mcl/mcl.hpp" 
 
+//include auton
 #include "mcl/auton.hpp"
 
 using namespace pros;

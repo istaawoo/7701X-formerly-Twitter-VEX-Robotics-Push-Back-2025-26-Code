@@ -102,3 +102,6 @@ public:
     void turnToPoint(float x, float y, int timeout, float earlyExitDelta);                            // turn to face a global point
     
 };
+
+//Declare the robot object once, allows use in multiple files.
+extern Robot robot;
