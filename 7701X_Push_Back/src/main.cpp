@@ -85,8 +85,8 @@ void opcontrol() {
 	bool shift = false;
 
 	while (true) {
-		static int rightStickX = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
-		static int leftStickY = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+		int rightStickX = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+		int leftStickY = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 
 		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {shift = true;} else {shift = false;}
 
