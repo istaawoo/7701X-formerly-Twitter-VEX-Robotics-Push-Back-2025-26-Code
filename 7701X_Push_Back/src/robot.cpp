@@ -71,8 +71,8 @@ void Robot::checkStart() {
 void Robot::move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta, gaussian errorLat, gaussian errorRot) { 
     waitUntilFinished();
     finished = false;
-    targetPose.x = getPose().x + distance * cos(theta); //gets the target x position by adding x component of movement vector with current position
-    targetPose.y = getPose().y + distance * sin(theta); //gets the target y position by adding y component of movement vector with current position
+    targetPose.x = getPose().x + distance * cos(theta * M_PI/180); //gets the target x position by adding x component of movement vector with current position
+    targetPose.y = getPose().y + distance * sin(theta * M_PI/180); //gets the target y position by adding y component of movement vector with current position
     targetPose.theta = theta; //gets target theta as heading of movement
 
     PID* lat_pid = nullptr;
@@ -107,7 +107,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);
-            double angleError = atan2(dy, dx) - getPose().theta;
+            double angleError = atan2(dy, dx) - (getPose().theta * M_PI/180);
             // Normalize angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
@@ -156,7 +156,7 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta) {
     finished = false;
     targetPose.x = x;
     targetPose.y = y;
-    targetPose.theta = atan2(y,x);
+    targetPose.theta = atan2(y,x) * 180/M_PI;
     float distance = sqrt(x*x+y*y);
 
     PID* lat_pid = nullptr;
@@ -270,12 +270,12 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
 
-            double carrotX = targetPose.x - difference*sin(targetPose.theta)*lead;
-            double carrotY = targetPose.y - difference*cos(targetPose.theta)*lead;
+            double carrotX = targetPose.x - difference*sin(targetPose.theta * M_PI/180)*lead;
+            double carrotY = targetPose.y - difference*cos(targetPose.theta * M_PI/180)*lead;
             double carrotDx = carrotX - getPose().x;
             double carrotDy = carrotY - getPose().y;
             double carrotDifference = sqrt(carrotDx*carrotDx + carrotDy*carrotDy);
-            double carrotAngleError = atan2(dy, dx) - getPose().theta;
+            double carrotAngleError = atan2(dy, dx) - (getPose().theta * M_PI/180);
 
             // Normalize carrot angleError to [-pi, pi]
             while (carrotAngleError > M_PI) carrotAngleError -= 2 * M_PI;
@@ -417,7 +417,7 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta) {
     finished = false;
     float dx = x - getPose().x;
     float dy = y - getPose().y;
-    targetPose.theta = atan2(dy,dx);
+    targetPose.theta = atan2(dy,dx) * 180/M_PI;
 
     PID* turn_pid = nullptr;
     switch (turning_PID) {

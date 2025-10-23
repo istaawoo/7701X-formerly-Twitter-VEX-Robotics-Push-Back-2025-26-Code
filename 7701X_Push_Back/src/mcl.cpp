@@ -59,8 +59,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     int yMax = 1828;  //Max Y bound of the field (top right corner)
     //These values make the center of the field (0,0)
 
-    float dx = cos(rayAngle); //The rate of change in x of the ray
-    float dy = sin(rayAngle); //The rate of change in y of the ray
+    float dx = cos(rayAngle*M_PI/180); //The rate of change in x of the ray
+    float dy = sin(rayAngle*M_PI/180); //The rate of change in y of the ray
 
     float tX;
     float tY;
@@ -153,8 +153,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             float drift = randError(errorDrift); //calculates random drift error
             float angleShift = atan2(drift,dist); //how much the actual heading of the move shifted during the move
             float actualDist = sqrt(dist*dist+drift*drift); //the actual distance traveled based on move error and drift
-            p->x += cos(p->theta-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
-            p->y += sin(p->theta-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
+            p->x += cos((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
+            p->y += sin((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
             p->theta += randError(errorTheta); //adds random error to particle angle.
             predictDistance(p);
             p->expSense[4] += p->theta - initialTheta;
