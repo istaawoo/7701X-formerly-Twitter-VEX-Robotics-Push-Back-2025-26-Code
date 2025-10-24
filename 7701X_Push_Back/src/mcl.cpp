@@ -39,13 +39,13 @@ void updateSenseData(float rightSensor, float frontSensor, float leftSensor, flo
 */
 
 sensor mclRight(0,0,270,1);
-sensor mclFront(0,0,0,1);
+//sensor mclFront(0,0,0,1);
 sensor mclLeft(0,0,90,1);
-sensor mclBack(0,0,180,1);
+//sensor mclBack(0,0,180,1);
 sensor mclImu1(0,0,0,5);
-sensor mclImu2(0,0,0,5);
+//sensor mclImu2(0,0,0,5);
 
-sensor sensors[6] = {mclRight,mclFront,mclLeft,mclBack,mclImu1,mclImu2};
+sensor sensors[3] = {mclRight,mclLeft,mclImu1};
 
 float randError(gaussian error) { //Uses a gaussian distribution of error to output a random value in that distribution
     std::normal_distribution<float> dist(error.mean,error.stanDev); 
@@ -93,7 +93,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     void particleFilter::predictDistance(particle* p) {
         //useSense(p); //Function depricated for now
         uint32_t start = pros::millis();
-        for(int k = 0; k < 4; k++) {
+        for(int k = 0; k < 2; k++) {
             p->expSense[k] = rayCastWalls(p->x+sensors[k].offX,p->y+sensors[k].offY,p->theta+sensors[k].face);
             pros::screen::print(pros::E_TEXT_MEDIUM, 2, "Sensor %i", k);
             pros::delay(2);
@@ -183,7 +183,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     void particleFilter::senseUpdate() {
         uint32_t start = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update start: %lu", start);
-        for(int i = 0; i<4; i++) { //Set readings for each distance sensor
+        for(int i = 0; i<2; i++) { //Set readings for each distance sensor
             if((*robotDistances)[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
                 sensors[i].reading = (*robotDistances)[i]->get();
                 sensors[i].use = true;
@@ -191,19 +191,19 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
                 sensors[i].use = false;
             }
         }
-        for(int i = 0; i<2; i++) { //Set readings for each inertial sensor
+        for(int i = 0; i<1; i++) { //Set readings for each inertial sensor
              if((*robotImus)[i]->get_rotation() != PROS_ERR) { //checks reading is not an error.
-                sensors[i+4].reading = (*robotImus)[i]->get_rotation();
-                sensors[i+4].use = true;
+                sensors[i+2].reading = (*robotImus)[i]->get_rotation();
+                sensors[i+2].use = true;
             } else {
-                sensors[i+4].use = false;
+                sensors[i+2].use = false;
             }
         }
         
         float totalWeight = 0; //defines a variable for the sum of all particle weights. Used in normalization 
         for(particle* p : particles) { //loops through each particle
             p->weight = 1; //sets weight to 1 initially so the *= can be used for sensors afterwards
-            for(int k = 0; k<5; k++) { //calulates the sensor weights by looping and taking the product of gaussian probability that the sensor readings would be what they are at each particle
+            for(int k = 0; k<3; k++) { //calulates the sensor weights by looping and taking the product of gaussian probability that the sensor readings would be what they are at each particle
                 if(sensors[k].use = true) {
                     //Save stanDev^2 in the sensor variable
                     p->weight *= exp(-1*(sensors[k].reading-p->expSense[k])*(sensors[k].reading-p->expSense[k])/(2*sensors[k].stanDev*sensors[k].stanDev));
