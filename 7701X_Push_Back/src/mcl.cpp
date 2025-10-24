@@ -143,7 +143,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         }
         uint32_t end = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu done: %lu", start, end);
-        moveTime = end - start - predictSenseTime - useSenseTime;
+        moveTime = end - start - predictSenseTime;
     }
 
     void particleFilter::liveMoveUpdate(float dR, float dL, gaussian errorR, gaussian errorL, float* trackWidth) {
@@ -176,7 +176,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             predictDistance(p);
         }
         uint32_t end = pros::millis();
-        moveTime = end - start - predictSenseTime - useSenseTime;
+        moveTime = end - start - predictSenseTime;
     }
 
     //Probably not worth the extra math, more accurate.
@@ -195,7 +195,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             p->expSense[4] += p->theta - initialTheta;
         }
         u_int32_t end = pros::millis(); //move update end time
-        moveTime = end - start - predictSenseTime - useSenseTime; //total time for mcl
+        moveTime = end - start - predictSenseTime; //total time for mcl
     }
 
     //updates weights of particles based on how likely they are to recieve the sensor data recieved
