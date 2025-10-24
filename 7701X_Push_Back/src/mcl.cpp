@@ -10,6 +10,7 @@
 #include "pros/misc.h"
 #include "pros/motors.h" // IWYU pragma: keep
 #include "pros/motors.hpp"
+#include "pros/motor_group.hpp"
 #include "pros/rotation.hpp"
 #include "pros/rtos.hpp"
 #include "pros/screen.hpp"
@@ -136,14 +137,32 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             p->x += dx + randError(errorX);
             p->y += dy + randError(errorY);
             p->theta += dtheta + randError(errorTheta);
-            p->expSense[4] += p->theta - initialTheta;
-            p->expSense[5] += p->theta - initialTheta;
+            p->expSense[2] += p->theta - initialTheta;
+            p->expSense[3] += p->theta - initialTheta;
             predictDistance(p);
         }
         uint32_t end = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu done: %lu", start, end);
         moveTime = end - start - predictSenseTime - useSenseTime;
     }
+
+    void particleFilter::liveMoveUpdate(float dR, float dL, gaussian errorR, gaussian errorL, float* trackWidth) {
+            for(particle* p : particles) {
+                float dR = dR + randError(errorR);
+                float dL = dL + randError(errorL);
+
+                double dtheta = (dL - dR) / *trackWidth; //Change in heading
+                double trackRadius = (dR/dtheta) + (*trackWidth/2); //Radius of the turn based on right wheel
+                double trackChord = 2 * trackRadius * sin(dtheta/2); //Chord length of the turn
+    
+                p->x += trackChord * cos(p->theta + dtheta/2); //Change in x position
+                p->y += trackChord * sin(p->theta + dtheta/2); //Change in y position
+                p->theta += dtheta;
+                p->expSense[2] += dtheta;
+                p->expSense[3] += dtheta;
+                predictDistance(p);
+            }
+        }
 
     //Probably not worth the extra math, more accurate.
     void particleFilter::turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {

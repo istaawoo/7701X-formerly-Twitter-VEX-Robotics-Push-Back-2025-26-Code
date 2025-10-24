@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pros/motor_group.hpp"
 //#include "mcl/robot.hpp"
 #include "mcl/pose.hpp"
 #include <vector>
@@ -24,7 +25,7 @@ public:
 
     particle(float x_, float y_, float theta_, float weight_ = 1) : x(x_), y(y_), theta(theta_), weight(weight_) {}
 
-    float expSense[6]; //array of all the expected sensor values. Used to loop through them.
+    float expSense[4]; //array of all the expected sensor values. Used to loop through them.
 
     particle operator+(const particle &other) const {
         return particle(x+other.x,y+other.y,theta+other.theta);
@@ -101,10 +102,11 @@ public:
     void initializeParticles(float initialX, float initialY, float initialTheta, 
                             gaussian errorX, gaussian errorY, gaussian errorTheta);
 
-
     //Default Error Values
 
     void moveUpdate(float targetX, float targetY, float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta);
+
+    void liveMoveUpdate(float dR, float dL, gaussian errorR, gaussian errorL, float* trackWidth);
 
     void turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta);
 
