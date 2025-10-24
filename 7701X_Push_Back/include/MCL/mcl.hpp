@@ -67,7 +67,6 @@ class particleFilter {
 private:
     const int maxParticles; //Number of particles in the filter
     std::vector<particle*> particles; //create a vector of all the particles
-    Pose position;
 
 public:
     int move = 0;

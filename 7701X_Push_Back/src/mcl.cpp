@@ -222,9 +222,9 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     Pose particleFilter::predictPosition() { //take the wighted sum of all particles positions to determin the predicted position
         u_int32_t start = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 4 , "predict position start: %lu", start);
-        position.x = 0;
-        position.y = 0;
-        position.theta = 0;
+        
+        Pose position(0,0,0); //Initializes position to 0.
+       
         for(particle* p : particles) {
             position.x += p->x*p->weight;
             position.y += p->y*p->weight;

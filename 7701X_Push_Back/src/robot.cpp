@@ -68,6 +68,34 @@ void Robot::checkStart() {
     robotPose = robotFilter.predictPosition();
 }
 
+void Robot::odometer() {
+    static double leftWheelDist = 0;
+    static double rightWheelDist = 0;
+
+    //Sets the initial distance to the previous distances from last run. Before update
+    double initialLeft = leftWheelDist;
+    double initialRight = rightWheelDist;
+
+    //Updates the wheel distances based on motor positions
+    leftWheelDist = left_motors->get_position() * wheelRatio * 2 * M_PI * wheelSize; //Convert motor rotations to linear distance
+    rightWheelDist = right_motors->get_position() * wheelRatio * 2 * M_PI * wheelSize; //Convert motor rotations to linear distance
+
+    double dL = leftWheelDist - initialLeft; //Change in left wheel distance
+    double dR = rightWheelDist - initialRight; //Change in right wheel distance
+
+    double dTheta = (dL - dR) / trackWidth; //Change in heading
+    double trackRadius = (dR/dTheta) + (trackWidth/2); //Radius of the turn based on right wheel
+    double trackChord = 2 * trackRadius * sin(dTheta/2); //Chord length of the turn
+    
+    double dX = trackChord * cos(robotPose.theta + dTheta/2); //Change in x position
+    double dY = trackChord * sin(robotPose.theta + dTheta/2); //Change in y position
+
+    //Update robot pose
+    robotPose.x += dX;
+    robotPose.y += dY;
+    robotPose.theta += dTheta;
+}
+
 //Move the robot a certian distance along a certian heading.
 void Robot::move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta, gaussian errorLat, gaussian errorRot) { 
     waitUntilFinished();

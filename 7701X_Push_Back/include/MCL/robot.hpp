@@ -56,10 +56,10 @@ private:
 public:
     particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15), &this->imus, &this->mclDistances);
 
-    double trackWidth;
+    double trackWidth; //distance between left and right wheels
     double trackLength;
-    double wheelRatio;
-    double wheelSize;
+    double wheelRatio; //Gear ratio of motors to wheels
+    double wheelSize; //Wheel radius in inches
     double rotCenterDistance;
 
     pros::MotorGroup* right_motors;
@@ -88,6 +88,8 @@ public:
     void place(float x, float y, float theta, gaussian errorLat, gaussian errorRot); //Put the robot at a starting position. initializes particle filter
     
     void checkStart(); //uses MCL to check and update starting position
+
+    void odometer(); //updates robot position based on wheel movements
 
     void move(float distance, float theta, int timeout, float maxSpeed,                               // move a relative distance along a target heading
               float earlyExitDelta, gaussian errorLat, gaussian errorRot);
