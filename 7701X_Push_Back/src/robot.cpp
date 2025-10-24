@@ -63,6 +63,7 @@ void waitUntilFinished() {
 }
 
 void Robot::checkStart() {
+    pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Checking Start Begin");
     robotFilter.senseUpdate();
     robotPose = robotFilter.predictPosition();
 }
@@ -151,7 +152,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
 }
 
 //Move the robot to a point with a heading along path of travel
-void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta) {
+void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gaussian errorLat, gaussian errorRot) {
     waitUntilFinished();
     finished = false;
     targetPose.x = x;
@@ -222,10 +223,18 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta) {
             pros::delay(20);
         }
     });
+
+    pros::Task moveToPointTaskMCL([this, errorLat, errorRot] {
+        int startTime = pros::millis();
+        robotFilter.resample();
+        robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
+        pros::Task::current().remove();
+    });
 }
 
 //Move the robot to a point with a target heading
-void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float earlyExitDelta, float lead, float horizontalDrift) {
+void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float earlyExitDelta, float lead, float horizontalDrift,
+                       gaussian errorLat, gaussian errorRot) {
     waitUntilFinished();
     finished = false;
     targetPose.x = x;
@@ -307,10 +316,17 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             pros::delay(20);
         }
     });
+
+    pros::Task moveToPoseTaskMCL([this, errorLat, errorRot] {
+        int startTime = pros::millis();
+        robotFilter.resample();
+        robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
+        pros::Task::current().remove();
+    });
 }
 
 //Turn the robot an ammount relative to current heading
-void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta) {
+void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussian errorLat, gaussian errorRot) {
     waitUntilFinished();
     finished = false;
     targetPose.x = getPose().x;
@@ -358,10 +374,17 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta) {
             pros::delay(20);
         }
     });
+
+    pros::Task turnTaskMCL([this, errorLat, errorRot] {
+        int startTime = pros::millis();
+        robotFilter.resample();
+        robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
+        pros::Task::current().remove();
+    });
 }
 
 //Turn the robot to a global heading
-void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta) {
+void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta, gaussian errorLat, gaussian errorRot) {
     waitUntilFinished();
     finished = false;
     targetPose.x = getPose().x;
@@ -409,10 +432,17 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta) {
             pros::delay(20);
         }
     });
+
+    pros::Task turnToTaskMCL([this, errorLat, errorRot] {
+        int startTime = pros::millis();
+        robotFilter.resample();
+        robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
+        pros::Task::current().remove();
+    });
 }
 
 //Turn the robot to face a global point
-void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta) {
+void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gaussian errorLat, gaussian errorRot) {
     waitUntilFinished();
     finished = false;
     float dx = x - getPose().x;
@@ -459,6 +489,13 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta) {
             }
             pros::delay(20);
         }
+    });
+
+    pros::Task turnToPointTaskMCL([this, errorLat, errorRot] {
+        int startTime = pros::millis();
+        robotFilter.resample();
+        robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
+        pros::Task::current().remove();
     });
 }
 

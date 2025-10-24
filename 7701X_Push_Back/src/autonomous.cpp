@@ -1,5 +1,6 @@
 #include "mcl/auton.hpp"
 #include "mcl/robot.hpp"
+#include "pros/screen.hpp"
 
 std::vector<Auton> autons = {
     {"Right Solo AWP", auton1},
@@ -21,8 +22,22 @@ std::vector<Auton> autons = {
 int selectedAuton = 0;
 
 void auton1() {
-    robot.place(72, 24, 90, {0,1}, {0,5});
+    pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Running");
+    robot.place(0, 48, 90, {0,1}, {0,5});
+    pros::delay(500);
+    pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Place done");
+    robot.checkStart();
+    pros::delay(500);
+    pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "check start done");
     robot.move(24, 0, 2000, 1.0, 0, {0,1}, {0,5});
+    pros::delay(500);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "predictSense Time: %lu", robot.robotFilter.predictSenseTime);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update time Time: %lu", robot.robotFilter.moveTime);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update Time: %lu", robot.robotFilter.senseTime);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 4 , "predict position Time: %lu", robot.robotFilter.predictPosTime);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "resample Time: %lu", robot.robotFilter.resampleTime);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 6 , "total Time: %lu", robot.robotFilter.executionTime);
+    //pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Position Guess X: %.2f Y: %.2f Theta: %.2f", robot.getPose().x, robot.getPose().y, robot.getPose().theta);
 }
 
 void auton2() {

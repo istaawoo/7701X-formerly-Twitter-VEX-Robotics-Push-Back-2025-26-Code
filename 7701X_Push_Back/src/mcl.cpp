@@ -38,14 +38,14 @@ void updateSenseData(float rightSensor, float frontSensor, float leftSensor, flo
 }
 */
 
-sensor right(0,0,0,1);
-sensor front(0,0,0.5*M_PI,1);
-sensor left(0,0,M_PI,1);
-sensor back(0,0,1.5*M_PI,1);
-sensor imu1(0,0,0,M_PI/20);
-sensor imu2(0,0,0,M_PI/20);
+sensor mclRight(0,0,270,1);
+sensor mclFront(0,0,0,1);
+sensor mclLeft(0,0,90,1);
+sensor mclBack(0,0,180,1);
+sensor mclImu1(0,0,0,5);
+sensor mclImu2(0,0,0,5);
 
-sensor sensors[6] = {right,front,left,back,imu1,imu2};
+sensor sensors[6] = {mclRight,mclFront,mclLeft,mclBack,mclImu1,mclImu2};
 
 float randError(gaussian error) { //Uses a gaussian distribution of error to output a random value in that distribution
     std::normal_distribution<float> dist(error.mean,error.stanDev); 
@@ -66,33 +66,37 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     float tY;
 
     if(dx>0) { //Checks if the x is going in positive direction and thus towards right wall
-        tX = (xMax-orginX*25.4)/dx; //at what t it intersects the right wall line (not segment), (25.4 converts from inches to mm)
+        tX = (xMax-(orginX*25.4))/dx; //at what t it intersects the right wall line (not segment), (25.4 converts from inches to mm)
     } else if(dx<0) { //Checks if the x is going in negative direction and thus towards left wall
-        tX = (xMin-orginX*25.4)/dx; //at what t it intersects the left wall line (not segment), (25.4 converts from inches to mm)
+        tX = (xMin-(orginX*25.4))/dx; //at what t it intersects the left wall line (not segment), (25.4 converts from inches to mm)
     } else {
         tX = std::numeric_limits<float>::infinity();
     }
 
     if(dy>0) { //Checks if the y is going in the positive direction and thus towards the far wall
-        tY = (yMax-orginY*25.4)/dy; //at what t it intersects the far wall line (not segment), (25.4 converts from inches to mm)
+        tY = (yMax-(orginY*25.4))/dy; //at what t it intersects the far wall line (not segment), (25.4 converts from inches to mm)
     } else if(dy<0) { //Only option left is going towards the near wall
-        tY = (yMin-orginY*25.4)/dy; //at what t it intersects the near wall line (not segment), (25.4 converts from inches to mm)
+        tY = (yMin-(orginY*25.4))/dy; //at what t it intersects the near wall line (not segment), (25.4 converts from inches to mm)
     } else {
         tY = std::numeric_limits<float>::infinity();
     }
 
-    float tMin = std::min(tX,tY);//Finds the smallest time, which will always intersect a wall from within the field
-    
+    if (std::isinf(tX) || std::isnan(tX)) tX = std::numeric_limits<float>::max();
+    if (std::isinf(tY) || std::isnan(tY)) tY = std::numeric_limits<float>::max();
+
+    float tMin = std::min(tX,tY); //Finds the smallest time, which will always intersect a wall from within the field
+    pros::screen::print(pros::E_TEXT_MEDIUM, 4, "Sensor value distance: %f", floor(tMin));
+    pros::delay(2);
     return tMin;
 }
 
     void particleFilter::predictDistance(particle* p) {
         //useSense(p); //Function depricated for now
         uint32_t start = pros::millis();
-        for(int k; k < 4; k++) {
-            if(sensors[k].use = true) {
-                float distance = rayCastWalls(p->x+sensors[k].offX,p->y+sensors[k].offY,p->theta+sensors[k].face);
-            }
+        for(int k = 0; k < 4; k++) {
+            p->expSense[k] = rayCastWalls(p->x+sensors[k].offX,p->y+sensors[k].offY,p->theta+sensors[k].face);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 2, "Sensor %i", k);
+            pros::delay(2);
         }
         uint32_t end = pros::millis();
         predictSenseTime += end-start;
@@ -101,21 +105,32 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     //Adds particles at a starting location with random setup error;
     void particleFilter::initializeParticles(float initialX, float initialY, float initialTheta, 
                                             gaussian errorX, gaussian errorY, gaussian errorTheta) {
-        for(int p; p < maxParticles; p++) {
+        u_int32_t start = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 0 , "initialize start: %lu", start);
+        for(int p = 0; p < maxParticles; p++) {
             float x_ = initialX + randError(errorX);
             float y_ = initialY + randError(errorY);
             float theta_ = initialTheta + randError(errorTheta);
 
-            particles.push_back(new particle(x_,y_,theta_));
+            particle* newParticle = new particle(x_,y_,theta_);
+            particles.push_back(newParticle);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 1, "Working on particle %i", p);
+            pros::delay(2);
 
-            predictDistance(particles[p]);
-            particles[p]->expSense[4] = 0; 
+            predictDistance(newParticle);
+            newParticle->expSense[4] = 0; 
+            newParticle->expSense[5] = 0; 
+            pros::screen::print(pros::E_TEXT_MEDIUM, 1, "Initialized particle %i", p);
+            pros::delay(2);
         }
+        u_int32_t end = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 0 , "initialize start: %lu done: %lu", start, end);
     }
 
     //moves the particles to a positions randomly offset from target position.
     void particleFilter::moveUpdate(float dx, float dy, float dtheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
         uint32_t start = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu", start);
         for(particle* p : particles) {
             float initialTheta = p->theta;
             p->x += dx + randError(errorX);
@@ -126,6 +141,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             predictDistance(p);
         }
         uint32_t end = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu done: %lu", start, end);
         moveTime = end - start - predictSenseTime - useSenseTime;
     }
 
@@ -166,6 +182,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     //updates weights of particles based on how likely they are to recieve the sensor data recieved
     void particleFilter::senseUpdate() {
         uint32_t start = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update start: %lu", start);
         for(int i = 0; i<4; i++) { //Set readings for each distance sensor
             if((*robotDistances)[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
                 sensors[i].reading = (*robotDistances)[i]->get();
@@ -198,11 +215,13 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             p->weight /= totalWeight;
         }
         uint32_t end = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update start: %lu done: %lu", start, end);
         uint32_t senseTime = end - start;
     }
 
     Pose particleFilter::predictPosition() { //take the wighted sum of all particles positions to determin the predicted position
         u_int32_t start = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 4 , "predict position start: %lu", start);
         position.x = 0;
         position.y = 0;
         position.theta = 0;
@@ -212,6 +231,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             position.theta += p->theta*p->weight;
         }
         u_int32_t end = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 4 , "predict position start: %lu done: %lu", start, end);
         predictPosTime = end - start;
         return position;
     }
@@ -219,6 +239,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     //resamples the particles, favoring those with high weights and adding some noise. Converges particles on likely robot position.
     void particleFilter::resample() {
         u_int32_t startTime = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "resample start: %lu", startTime);
 
         float step = 1.0/particles.size(); //Regular step ammount
         std::uniform_real_distribution<float> dist(0,step); //defines a random number range from 0 to the step. 
@@ -239,6 +260,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         }
 
         uint32_t end = pros::millis();
+        pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "resample start: %i done: %i", startTime, end);
         resampleTime = end - startTime;
     }
     

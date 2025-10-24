@@ -53,9 +53,9 @@ MotorGroup intake2({-21}, MotorCartridge::blue);
 Imu imu1(8);
 Imu imu2(2);
 
-Distance right(3);
+Distance right(9);
 Distance front(4);
-Distance left(5);
+Distance left(7);
 Distance back(6);
 
 Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
@@ -66,23 +66,22 @@ void initialize() { // runs initialization; keep execution time under three seco
     //Adds sensors to the robot sensor vectors
     robot.imus.push_back(std::make_unique<Imu>(8));
     robot.imus.push_back(std::make_unique<Imu>(2));
-    robot.mclDistances.push_back(std::make_unique<Distance>(3));
-    robot.mclDistances.push_back(std::make_unique<Distance>(4));
+    robot.mclDistances.push_back(std::make_unique<Distance>(9));
+    robot.mclDistances.push_back(std::make_unique<Distance>(7));
     robot.mclDistances.push_back(std::make_unique<Distance>(5));
     robot.mclDistances.push_back(std::make_unique<Distance>(6));
     
     //calibrate IMUs
     imu1.reset();
     imu2.reset();
-/*
-	latteral_high_qual.setExitConditions(1, 250, 5000);
+
+    latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
 	latteral_low_qual.setExitConditions(1, 250, 5000);
 
 	turning_high_qual.setExitConditions(1, 250, 1000);
 	turning_med_qual.setExitConditions(1, 250, 1000);
 	turning_low_qual.setExitConditions(1, 250, 1000);
-*/
 }
 
 void disabled() { // task exits when robot is re-enabled

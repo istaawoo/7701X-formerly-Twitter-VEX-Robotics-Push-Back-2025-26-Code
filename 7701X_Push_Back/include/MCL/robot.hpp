@@ -11,6 +11,7 @@
 #include "pros/motor_group.hpp"
 #include "mcl/pose.hpp"
 #include "mcl/mcl.hpp"
+#include "mcl/pid.hpp"
 
 /*
 class Pose { //Variable that stores and x, y and theta position
@@ -51,9 +52,10 @@ enum class TurnPID {
 class Robot {
 private:
     Pose robotPose;
-    particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15), &this->imus, &this->mclDistances);
 
 public:
+    particleFilter robotFilter = particleFilter(50, gaussian(3), gaussian(0.15), &this->imus, &this->mclDistances);
+
     double trackWidth;
     double trackLength;
     double wheelRatio;
@@ -90,18 +92,30 @@ public:
     void move(float distance, float theta, int timeout, float maxSpeed,                               // move a relative distance along a target heading
               float earlyExitDelta, gaussian errorLat, gaussian errorRot);
 
-    void moveToPoint(float x, float y, int timeout, float earlyExitDelta);                            // move to global point with final heading along movement
+    void moveToPoint(float x, float y, int timeout, float earlyExitDelta,                             // move to global point with final heading along movement
+                     gaussian errorLat, gaussian errorRot);                            
     
     void moveToPose(float x, float y, float theta, int timeout, float maxSpeed,                       // move to global point with a target heading
-                    float earlyExitDelta, float lead, float horizontalDrift);                                         
-    
-    void turn(float thetaRelative, int timeout, float earlyExitDelta);                                // turn a relative angle
-    
-    void turnTo(float thetaAbsolute, int timeout, float earlyExitDelta);                              // turn to an absolute heading
-    
-    void turnToPoint(float x, float y, int timeout, float earlyExitDelta);                            // turn to face a global point
-    
+                    float earlyExitDelta, float lead, float horizontalDrift,                                         
+                    gaussian errorLat, gaussian errorRot);
+
+    void turn(float thetaRelative, int timeout, float earlyExitDelta,                                 // turn a relative angle
+              gaussian errorLat, gaussian errorRot);
+
+    void turnTo(float thetaAbsolute, int timeout, float earlyExitDelta,                               // turn to an absolute heading
+                gaussian errorLat, gaussian errorRot);
+
+    void turnToPoint(float x, float y, int timeout, float earlyExitDelta,                             // turn to face a global point
+                     gaussian errorLat, gaussian errorRot);
 };
 
 //Declare the robot object once, allows use in multiple files.
 extern Robot robot;
+
+extern PID latteral_high_qual;
+extern PID latteral_med_qual;
+extern PID latteral_low_qual;
+
+extern PID turning_high_qual;
+extern PID turning_med_qual;
+extern PID turning_low_qual;

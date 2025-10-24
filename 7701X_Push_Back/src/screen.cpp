@@ -224,7 +224,7 @@ void screenUpdate() {
 
 void screenLoop() {
     while (true) {
-        screenUpdate();
+        //screenUpdate();
         pros::delay(250);
     }
 }

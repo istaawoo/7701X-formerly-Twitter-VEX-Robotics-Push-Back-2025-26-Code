@@ -19,12 +19,12 @@ class particle { //defines a particle. (A guess of where the robot is)
 public:
     float x; //x-cord
     float y; //y-cord
-    float theta; //angle of heading
+    float theta; //angle of heading/
     float weight; //how likely the robot is at that particle
 
     particle(float x_, float y_, float theta_, float weight_ = 1) : x(x_), y(y_), theta(theta_), weight(weight_) {}
 
-    float expSense[5]; //array of all the expected sensor values. Used to loop through them.
+    float expSense[6]; //array of all the expected sensor values. Used to loop through them.
 
     particle operator+(const particle &other) const {
         return particle(x+other.x,y+other.y,theta+other.theta);
