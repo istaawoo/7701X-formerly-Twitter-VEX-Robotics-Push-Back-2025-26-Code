@@ -20,34 +20,36 @@ class particle { //defines a particle. (A guess of where the robot is)
 public:
     float x; //x-cord
     float y; //y-cord
-    float theta; //angle of heading/
+    heading theta; //angle of heading
     float weight; //how likely the robot is at that particle
 
     particle(float x_, float y_, float theta_, float weight_ = 1) : x(x_), y(y_), theta(theta_), weight(weight_) {}
 
-    float expSense[4]; //array of all the expected sensor values. Used to loop through them.
+    float expSense[3]; //array of all the expected sensor values. Used to loop through them.
 
     particle operator+(const particle &other) const {
-        return particle(x+other.x,y+other.y,theta+other.theta);
+        return particle(x+other.x,y+other.y,theta);
     }
 
     particle operator-(const particle &other) const {
-        return particle(x-other.x,y-other.y,theta-other.theta);
+        return particle(x-other.x,y-other.y,theta);
     }
 
-    particle operator*(const float& other) const {
-        return particle(x*other,y*other,theta*other);
-    }
-
-    particle operator/(const float& other) const {
-        return particle(x/other,y/other,theta/other);
-    }
-
-    particle operator=(const particle &other) {
+    particle& operator=(const particle &other) {
         this->x = other.x;
         this->y = other.y;
-        this->theta = other.theta;
-        this->weight = 1;
+        return *this;
+    }
+
+    particle& operator+=(const particle &other) {
+        this->x += other.x;
+        this->y += other.y;
+        return *this;
+    }
+
+    particle& operator-=(const particle &other) {
+        this->x -= other.x;
+        this->y -= other.y;
         return *this;
     }
 

@@ -111,7 +111,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         for(int p = 0; p < maxParticles; p++) {
             float x_ = initialX + randError(errorX);
             float y_ = initialY + randError(errorY);
-            float theta_ = initialTheta + randError(errorTheta);
+            heading theta_ = initialTheta + randError(errorTheta);
 
             particle* newParticle = new particle(x_,y_,theta_);
             particles.push_back(newParticle);
@@ -119,8 +119,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             pros::delay(2);
 
             predictDistance(newParticle);
-            newParticle->expSense[4] = 0; 
-            newParticle->expSense[5] = 0; 
+            newParticle->expSense[2] = 0; 
             pros::screen::print(pros::E_TEXT_MEDIUM, 1, "Initialized particle %i", p);
             pros::delay(2);
         }
@@ -133,12 +132,11 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         uint32_t start = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu", start);
         for(particle* p : particles) {
-            float initialTheta = p->theta;
+            heading initialTheta = p->theta;
             p->x += dx + randError(errorX);
             p->y += dy + randError(errorY);
             p->theta += dtheta + randError(errorTheta);
             p->expSense[2] += p->theta - initialTheta;
-            p->expSense[3] += p->theta - initialTheta;
             predictDistance(p);
         }
         uint32_t end = pros::millis();
@@ -151,15 +149,14 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
                 float dR = dR + randError(errorR);
                 float dL = dL + randError(errorL);
 
-                double dtheta = (dL - dR) / *trackWidth; //Change in heading
-                double trackRadius = (dR/dtheta) + (*trackWidth/2); //Radius of the turn based on right wheel
-                double trackChord = 2 * trackRadius * sin(dtheta/2); //Chord length of the turn
+                float dtheta = (dL - dR) / *trackWidth; //Change in heading
+                float trackRadius = (dR/dtheta) + (*trackWidth/2); //Radius of the turn based on right wheel
+                float trackChord = 2 * trackRadius * sin(dtheta/2); //Chord length of the turn
     
-                p->x += trackChord * cos(p->theta + dtheta/2); //Change in x position
-                p->y += trackChord * sin(p->theta + dtheta/2); //Change in y position
+                p->x += trackChord * cos(p->theta + (dtheta/2)); //Change in x position
+                p->y += trackChord * sin(p->theta + (dtheta/2)); //Change in y position
                 p->theta += dtheta;
                 p->expSense[2] += dtheta;
-                p->expSense[3] += dtheta;
                 predictDistance(p);
             }
         }
@@ -172,7 +169,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             p->x += randError(errorX);
             p->y += randError(errorY);
             p->theta = targetTheta + randError(errorTheta);
-            p->expSense[4] += p->theta - initialTheta;
+            p->expSense[2] += p->theta - initialTheta;
             predictDistance(p);
         }
         uint32_t end = pros::millis();
@@ -233,6 +230,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         for(particle* p : particles) { //loops through each particle to divide calulated weight by total weight to normalize the weights (Dividing weights by total weights so they are the chance the robot is at that particle out of every other particle)
             p->weight /= totalWeight;
         }
+        
         uint32_t end = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update start: %lu done: %lu", start, end);
         uint32_t senseTime = end - start;
@@ -260,6 +258,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         u_int32_t startTime = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "resample start: %lu", startTime);
 
+        std::vector<particle*> resampledParticles;
         float step = 1.0/particles.size(); //Regular step ammount
         std::uniform_real_distribution<float> dist(0,step); //defines a random number range from 0 to the step. 
         float start = dist(gen); //Random starting point in predefined range ^
@@ -272,14 +271,19 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
                 index++; //moves down the list of particles
                 cumulativeWeight += particles[index]->weight; //adds next particles weight to get the cumulative weight for that particle to check again
             }
-            //adds some noise to the resampled particles
-            particles[p]->x = particles[index]->x +randError(statNoiseLinear);
-            particles[p]->y = particles[index]->y +randError(statNoiseLinear);
-            particles[p]->theta = particles[index]->theta +randError(statNoiseRot);
+            //adds the resampled particle to the feild and adds some noise
+            resampledParticles.push_back(new particle(
+                particles[index]->x + randError(statNoiseLinear),
+                particles[index]->y + randError(statNoiseLinear),
+                particles[index]->theta + randError(statNoiseRot)
+            ));
         }
 
+        for (particle* p : particles) delete p;
+        particles = std::move(resampledParticles);
+
         uint32_t end = pros::millis();
-        pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "resample start: %i done: %i", startTime, end);
+        pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "resample start: %lu done: %lu", startTime, end);
         resampleTime = end - startTime;
     }
     

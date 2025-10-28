@@ -10,7 +10,6 @@ PID::PID(double Kp, double Ki, double Kd, double integralLimit) {
 
     prevError = 0.0;
     integral = 0.0;
-    target = 0.0;
 
     errorThreshold = 5.0;
     settleTimeMs = 250;
@@ -23,18 +22,8 @@ PID::PID(double Kp, double Ki, double Kd, double integralLimit) {
     startTime = pros::millis();
 }
 
-// set target
-void PID::setTarget(double newTarget) {
-    target = newTarget;
-    integral = 0.0;
-    prevError = 0.0;
-    stableTime = pros::millis();
-    startTime = pros::millis();
-}
-
 // calculate PID output
-double PID::calculate(double current) {
-    double error = target - current; // error
+double PID::calculate(double error) {
     integral += error; // accumulate
 
     // limit integral
@@ -56,8 +45,8 @@ void PID::setExitConditions(double errorThreshold, int settleTimeMs, int timeout
 }
 
 // check if PID has settled
-bool PID::isSettled(double current) {
-    double error = std::fabs(target - current);
+bool PID::isSettled(double error) {
+    error = fabs(error);
     auto now = pros::millis();
 
     if (error < errorThreshold) {

@@ -87,13 +87,23 @@ void Robot::odometer() {
     double trackRadius = (dR/dTheta) + (trackWidth/2); //Radius of the turn based on right wheel
     double trackChord = 2 * trackRadius * sin(dTheta/2); //Chord length of the turn
     
-    double dX = trackChord * cos(robotPose.theta + dTheta/2); //Change in x position
-    double dY = trackChord * sin(robotPose.theta + dTheta/2); //Change in y position
+    double dX = trackChord * cos(robotPose.theta*M_PI/180 + dTheta/2); //Change in x position
+    double dY = trackChord * sin(robotPose.theta*M_PI/180 + dTheta/2); //Change in y position
 
     //Update robot pose
     robotPose.x += dX;
     robotPose.y += dY;
-    robotPose.theta += dTheta;
+    robotPose.theta += (dTheta * 180/M_PI);
+}
+
+void Robot::imuRotation() {
+    static float imuReading = 0;
+
+    float initialReading = imuReading;
+
+    imuReading = imus[0]->get_rotation();
+
+    robotPose.theta += imuReading - initialReading;
 }
 
 //Move the robot a certian distance along a certian heading.
@@ -133,6 +143,8 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
     pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
+            odometer(); //Uses motor encoders to update robot position
+
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);
@@ -216,7 +228,10 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
 
     pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
+        
         while (true) {
+            odometer(); //Uses motor encoders to update robot position
+
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);
@@ -299,6 +314,8 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
     pros::Task moveToPose([this, lat_pid, turn_pid, distance, &lead, &timeout, &earlyExitDelta]{
         int startTime = pros::millis();
         while (true) {
+            odometer(); //Uses motor encoders to update robot position
+
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);

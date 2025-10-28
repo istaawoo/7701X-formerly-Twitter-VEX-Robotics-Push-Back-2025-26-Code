@@ -10,7 +10,6 @@ class PID {
 private:
     double prevError;       // previous error
     double integral;        // accumulated error
-    double target;          // setpoint
     double integralLimit;   // max integral
 
     double errorThreshold;  // acceptable error
@@ -32,11 +31,8 @@ public:
     // constructor
     PID(double Kp, double Ki, double Kd, double integralLimit = 1000.0);
 
-    // set target
-    void setTarget(double newTarget);
-
     // calculate PID output
-    double calculate(double current);
+    double calculate(double error);
 
     // reset PID
     void reset();
