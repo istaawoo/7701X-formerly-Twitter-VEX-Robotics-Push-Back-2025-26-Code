@@ -3,11 +3,11 @@
 #include "mcl/mcl.hpp"
 #include <cmath>
 
-PID latteral_high_qual(1, 0, 1);  // lat_one
+PID latteral_high_qual(5, 0, 1);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
-PID turning_high_qual(1, 0, 1);   // turn_one
+PID turning_high_qual(2, 0, 1);   // turn_one
 PID turning_med_qual(5, 1, 5);	  // turn_two
 PID turning_low_qual(10, 5, 10);  // turn_three
 
@@ -47,8 +47,10 @@ void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian err
     robotPose.x = x;
     robotPose.y = y;
     robotPose.theta = theta;
+
+    imus[0]->set_heading(theta);
     
-    robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
+    //robotFilter.initializeParticles(x,y,theta,errorLat,errorLat,errorRot);
 }
 
 void Robot::setPID(LatPID latPID, TurnPID turnPID) {
@@ -57,7 +59,7 @@ void Robot::setPID(LatPID latPID, TurnPID turnPID) {
 }
 
 void waitUntilFinished() {
-    if (!finished) {
+    while (!finished) {
         pros::delay(20);
     }
 }
@@ -69,49 +71,45 @@ void Robot::checkStart() {
 }
 
 void Robot::odometer() {
-    static double leftWheelDist = 0;
-    static double rightWheelDist = 0;
+    static float leftWheelDist = 0;
+    static float rightWheelDist = 0;
 
     //Sets the initial distance to the previous distances from last run. Before update
-    double initialLeft = leftWheelDist;
-    double initialRight = rightWheelDist;
+    float initialLeft = leftWheelDist;
+    float initialRight = rightWheelDist;
 
     //Updates the wheel distances based on motor positions
-    leftWheelDist = left_motors->get_position() * wheelRatio * 2 * M_PI * wheelSize; //Convert motor rotations to linear distance
-    rightWheelDist = right_motors->get_position() * wheelRatio * 2 * M_PI * wheelSize; //Convert motor rotations to linear distance
+    left_motors->set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_ROTATIONS);
+    right_motors->set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_ROTATIONS);
 
-    double dL = leftWheelDist - initialLeft; //Change in left wheel distance
-    double dR = rightWheelDist - initialRight; //Change in right wheel distance
+    leftWheelDist = left_motors->get_position() * wheelRatio * M_PI * wheelSize; //Convert motor rotations to linear distance
+    rightWheelDist = right_motors->get_position() * wheelRatio * M_PI * wheelSize; //Convert motor rotations to linear distance
 
-    double dTheta = (dL - dR) / trackWidth; //Change in heading
-    double trackRadius = (dR/dTheta) + (trackWidth/2); //Radius of the turn based on right wheel
-    double trackChord = 2 * trackRadius * sin(dTheta/2); //Chord length of the turn
-    
-    double dX = trackChord * cos(robotPose.theta*M_PI/180 + dTheta/2); //Change in x position
-    double dY = trackChord * sin(robotPose.theta*M_PI/180 + dTheta/2); //Change in y position
+    float dL = leftWheelDist - initialLeft; //Change in left wheel distance
+    float dR = rightWheelDist - initialRight; //Change in right wheel distance
 
-    //Update robot pose
-    robotPose.x += dX;
-    robotPose.y += dY;
-    robotPose.theta += (dTheta * 180/M_PI);
-}
+    float dTheta = (dL - dR) / trackWidth; //Change in heading
 
-void Robot::imuRotation() {
-    static float imuReading = 0;
+    if (fabs(dTheta) < 1e-6) {
+        double dS = (dR + dL)/2;
+        robotPose.x += dS * sin(robotPose.theta * M_PI/180);
+        robotPose.y += dS * cos(robotPose.theta * M_PI/180);
+    } else {
+        double trackRadius = (dR / dTheta) + (trackWidth/2);
+        double trackChord = 2 * trackRadius * sin(dTheta/2);
+        robotPose.x += trackChord * sin(robotPose.theta * M_PI/180 + dTheta/2);
+        robotPose.y += trackChord * cos(robotPose.theta * M_PI/180 + dTheta/2);
+    }
 
-    float initialReading = imuReading;
-
-    imuReading = imus[0]->get_rotation();
-
-    robotPose.theta += imuReading - initialReading;
+    robotPose.theta = imus[0]->get_heading();
 }
 
 //Move the robot a certian distance along a certian heading.
 void Robot::move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta, gaussian errorLat, gaussian errorRot) { 
     waitUntilFinished();
     finished = false;
-    targetPose.x = getPose().x + distance * cos(theta * M_PI/180); //gets the target x position by adding x component of movement vector with current position
-    targetPose.y = getPose().y + distance * sin(theta * M_PI/180); //gets the target y position by adding y component of movement vector with current position
+    targetPose.x = getPose().x + distance * sin(theta * M_PI/180); //gets the target x position by adding x component of movement vector with current position
+    targetPose.y = getPose().y + distance * cos(theta * M_PI/180); //gets the target y position by adding y component of movement vector with current position
     targetPose.theta = theta; //gets target theta as heading of movement
 
     PID* lat_pid = nullptr;
@@ -140,15 +138,20 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
     }
     if (!lat_pid || !turn_pid) return;
 
+    pros::screen::print(pros::E_TEXT_MEDIUM, 6 , "Robot Start Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
+
     pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             odometer(); //Uses motor encoders to update robot position
 
+            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %f, %f, %f",targetPose.x,targetPose.y,targetPose.theta);
+
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);
-            double angleError = atan2(dy, dx) - (getPose().theta * M_PI/180);
+            double angleError = -atan2(dx, dy) - (getPose().theta * M_PI/180);
             // Normalize angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
@@ -167,28 +170,31 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             if ((lat_pid->isSettled(difference) 
                 && turn_pid->isSettled(angleError)) 
                 || (pros::millis() - startTime > timeout)
-                || (difference < earlyExitDelta)) {
+                || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
                     right_motors->move(0);
                 }
-                
-                robotFilter.senseUpdate();
-                robotPose = robotFilter.predictPosition();
+
+                //robotFilter.senseUpdate();
+                //robotPose = robotFilter.predictPosition();
                 finished = true;
+                pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Move Done");
                 break;
             }
             pros::delay(20);
         }
+        pros::Task::current().remove();
     });
-
+    /*
     pros::Task moveTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
+    */
 }
 
 //Move the robot to a point with a heading along path of travel
@@ -197,7 +203,7 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
     finished = false;
     targetPose.x = x;
     targetPose.y = y;
-    targetPose.theta = atan2(y,x) * 180/M_PI;
+    targetPose.theta = -atan2(x,y) * 180/M_PI;
     float distance = sqrt(x*x+y*y);
 
     PID* lat_pid = nullptr;
@@ -226,7 +232,7 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, &timeout, &earlyExitDelta] {
+    pros::Task moveToPointTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         
         while (true) {
@@ -235,7 +241,7 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);
-            double angleError = atan2(dy, dx) - getPose().theta;
+            double angleError = -atan2(dx, dy) - getPose().theta;
             // Normalize angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
@@ -251,10 +257,10 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
             }
 
             // Check if PID is settled or timeout
-            if ((lat_pid->isSettled(distance - difference) 
+            if ((lat_pid->isSettled(difference) 
                 && turn_pid->isSettled(angleError)) 
                 || (pros::millis() - startTime > timeout)
-                || (difference < earlyExitDelta)) {
+                || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -265,14 +271,17 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
             }
             pros::delay(20);
         }
+        pros::Task::current().remove();
     });
 
+    /*
     pros::Task moveToPointTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
+    */
 }
 
 //Move the robot to a point with a target heading
@@ -311,7 +320,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
     }
     if (!lat_pid || !turn_pid) return;
 
-    pros::Task moveToPose([this, lat_pid, turn_pid, distance, &lead, &timeout, &earlyExitDelta]{
+    pros::Task moveToPose([this, lat_pid, turn_pid, distance, lead, timeout, earlyExitDelta]{
         int startTime = pros::millis();
         while (true) {
             odometer(); //Uses motor encoders to update robot position
@@ -319,7 +328,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             double dx = targetPose.x - getPose().x;
             double dy = targetPose.y - getPose().y;
             double difference = sqrt(dx * dx + dy * dy);
-            double angleError = atan2(dy, dx) - getPose().theta;
+            double angleError = -atan2(dx, dy) - getPose().theta * 180/M_PI;
             // Normalize carrot angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
@@ -329,7 +338,7 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             double carrotDx = carrotX - getPose().x;
             double carrotDy = carrotY - getPose().y;
             double carrotDifference = sqrt(carrotDx*carrotDx + carrotDy*carrotDy);
-            double carrotAngleError = atan2(dy, dx) - (getPose().theta * M_PI/180);
+            double carrotAngleError = -atan2(dx, dy) - (getPose().theta * M_PI/180);
 
             // Normalize carrot angleError to [-pi, pi]
             while (carrotAngleError > M_PI) carrotAngleError -= 2 * M_PI;
@@ -346,10 +355,10 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             }
 
             // Check if PID is settled or timeout
-            if ((lat_pid->isSettled(distance - difference) 
+            if ((lat_pid->isSettled(difference) 
                 && turn_pid->isSettled(angleError)) 
                 || (pros::millis() - startTime > timeout)
-                || (difference < earlyExitDelta)) {
+                || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
@@ -360,23 +369,30 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             }
             pros::delay(20);
         }
+        pros::Task::current().remove();
     });
 
+    /*
     pros::Task moveToPoseTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
+    */
 }
 
 //Turn the robot an ammount relative to current heading
 void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussian errorLat, gaussian errorRot) {
     waitUntilFinished();
     finished = false;
+
     targetPose.x = getPose().x;
     targetPose.y = getPose().y;
     targetPose.theta = getPose().theta + thetaRelative;
+
+    pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "Robot Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
+    pros::screen::print(pros::E_TEXT_MEDIUM, 4 , "Target Pose: %f, %f, %f",targetPose.x,targetPose.y,targetPose.theta);
 
     PID* turn_pid = nullptr;
     switch (turning_PID) {
@@ -392,40 +408,49 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, &timeout, &earlyExitDelta] {
+    pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
+            robotPose.theta = imus[0]->get_heading();
+            
+            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %f, %f, %f",targetPose.x,targetPose.y,targetPose.theta);
+
             double dtheta = targetPose.theta - getPose().theta;
 
             // PID outputs
             double turningPower = turn_pid->calculate(dtheta);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 10 , "Turn Power: %d", turningPower);
 
             // Set motor power
             if (left_motors && right_motors) {
-                left_motors->move(-turningPower);
-                right_motors->move(turningPower);
+                left_motors->move(turningPower);
+                right_motors->move(-turningPower);
             }
 
             // Check if PID is settled or timeout
-            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (dtheta < earlyExitDelta)) {
+            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (fabs(dtheta) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);
                     right_motors->move(0);
                 }
                 finished = true;
+                pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Turn Done");
                 break;
             }
             pros::delay(20);
         }
+        pros::Task::current().remove();
     });
-
+    /*
     pros::Task turnTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
+    */
 }
 
 //Turn the robot to a global heading
@@ -450,9 +475,11 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta, gauss
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, &timeout, &earlyExitDelta] {
+    pros::Task turnToTask([this, turn_pid, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
+            robotPose.theta = imus[0]->get_heading();
+
             double dtheta = targetPose.theta - getPose().theta;
 
             // PID outputs
@@ -476,14 +503,17 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta, gauss
             }
             pros::delay(20);
         }
+        pros::Task::current().remove();
     });
 
+    /*
     pros::Task turnToTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
+    */
 }
 
 //Turn the robot to face a global point
@@ -492,7 +522,7 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
     finished = false;
     float dx = x - getPose().x;
     float dy = y - getPose().y;
-    targetPose.theta = atan2(dy,dx) * 180/M_PI;
+    targetPose.theta = -atan2(dx,dy) * 180/M_PI;
 
     PID* turn_pid = nullptr;
     switch (turning_PID) {
@@ -508,9 +538,11 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
     }
     if (!turn_pid) return;
 
-    pros::Task turnTask([this, turn_pid, &timeout, &earlyExitDelta] {
+    pros::Task turnToPointTask([this, turn_pid, &timeout, &earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
+            robotPose.theta = imus[0]->get_heading();
+
             double dtheta = targetPose.theta - getPose().theta;
 
             // PID outputs
@@ -534,14 +566,17 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
             }
             pros::delay(20);
         }
+        pros::Task::current().remove();
     });
 
+    /*
     pros::Task turnToPointTaskMCL([this, errorLat, errorRot] {
         int startTime = pros::millis();
         robotFilter.resample();
         robotFilter.moveUpdate(targetPose.x-robotPose.x, targetPose.y-robotPose.y, targetPose.theta-robotPose.theta, errorLat, errorLat, errorRot);
         pros::Task::current().remove();
     });
+    */
 }
 
 Pose Robot::getPose() {

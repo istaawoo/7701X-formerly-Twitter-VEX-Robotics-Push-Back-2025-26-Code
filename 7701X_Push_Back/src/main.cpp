@@ -65,7 +65,6 @@ Controller controller(pros::E_CONTROLLER_MASTER);
 void initialize() { // runs initialization; keep execution time under three seconds
     //Adds sensors to the robot sensor vectors
     robot.imus.push_back(std::make_unique<Imu>(8));
-    robot.imus.push_back(std::make_unique<Imu>(2));
     robot.mclDistances.push_back(std::make_unique<Distance>(9));
     robot.mclDistances.push_back(std::make_unique<Distance>(7));
     robot.mclDistances.push_back(std::make_unique<Distance>(5));
@@ -74,14 +73,18 @@ void initialize() { // runs initialization; keep execution time under three seco
     //calibrate IMUs
     imu1.reset();
     imu2.reset();
+    
+
+    left_motors.set_zero_position_all(0);
+    right_motors.set_zero_position_all(0);
 
     latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
 	latteral_low_qual.setExitConditions(1, 250, 5000);
 
-	turning_high_qual.setExitConditions(1, 250, 1000);
-	turning_med_qual.setExitConditions(1, 250, 1000);
-	turning_low_qual.setExitConditions(1, 250, 1000);
+	turning_high_qual.setExitConditions(1, 250, 5000);
+	turning_med_qual.setExitConditions(1, 250, 5000);
+	turning_low_qual.setExitConditions(1, 250, 5000);
 }
 
 void disabled() { // task exits when robot is re-enabled

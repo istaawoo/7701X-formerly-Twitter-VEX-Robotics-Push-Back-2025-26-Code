@@ -46,10 +46,9 @@ void PID::setExitConditions(double errorThreshold, int settleTimeMs, int timeout
 
 // check if PID has settled
 bool PID::isSettled(double error) {
-    error = fabs(error);
     auto now = pros::millis();
 
-    if (error < errorThreshold) {
+    if (fabs(error) < errorThreshold) {
         if (now - stableTime >= settleTimeMs) return true;
     } else {
         stableTime = now;

@@ -60,8 +60,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     int yMax = 1828;  //Max Y bound of the field (top right corner)
     //These values make the center of the field (0,0)
 
-    float dx = cos(rayAngle*M_PI/180); //The rate of change in x of the ray
-    float dy = sin(rayAngle*M_PI/180); //The rate of change in y of the ray
+    float dx = sin(rayAngle*M_PI/180); //The rate of change in x of the ray
+    float dy = cos(rayAngle*M_PI/180); //The rate of change in y of the ray
 
     float tX;
     float tY;
@@ -153,8 +153,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
                 float trackRadius = (dR/dtheta) + (*trackWidth/2); //Radius of the turn based on right wheel
                 float trackChord = 2 * trackRadius * sin(dtheta/2); //Chord length of the turn
     
-                p->x += trackChord * cos(p->theta + (dtheta/2)); //Change in x position
-                p->y += trackChord * sin(p->theta + (dtheta/2)); //Change in y position
+                p->x += trackChord * sin(p->theta + (dtheta/2)); //Change in x position
+                p->y += trackChord * cos(p->theta + (dtheta/2)); //Change in y position
                 p->theta += dtheta;
                 p->expSense[2] += dtheta;
                 predictDistance(p);
@@ -185,8 +185,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             float drift = randError(errorDrift); //calculates random drift error
             float angleShift = atan2(drift,dist); //how much the actual heading of the move shifted during the move
             float actualDist = sqrt(dist*dist+drift*drift); //the actual distance traveled based on move error and drift
-            p->x += cos((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
-            p->y += sin((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
+            p->x += sin((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
+            p->y += cos((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
             p->theta += randError(errorTheta); //adds random error to particle angle.
             predictDistance(p);
             p->expSense[4] += p->theta - initialTheta;
@@ -200,16 +200,18 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         uint32_t start = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update start: %lu", start);
         for(int i = 0; i<2; i++) { //Set readings for each distance sensor
-            if((*robotDistances)[i]->get() != PROS_ERR) { //checks reading is not an error (test if object size can also be used to exlcude sensor from use, as it is probably not detecting a wall)
-                sensors[i].reading = (*robotDistances)[i]->get();
+            float reading = (*robotDistances)[i]->get();
+            if (reading != PROS_ERR) {
+                sensors[i].reading = reading;
                 sensors[i].use = true;
             } else {
                 sensors[i].use = false;
             }
         }
         for(int i = 0; i<1; i++) { //Set readings for each inertial sensor
-             if((*robotImus)[i]->get_rotation() != PROS_ERR) { //checks reading is not an error.
-                sensors[i+2].reading = (*robotImus)[i]->get_rotation();
+            float reading = (*robotImus)[i]->get_rotation();
+            if(reading != PROS_ERR) { //checks reading is not an error.
+                sensors[i+2].reading = reading;
                 sensors[i+2].use = true;
             } else {
                 sensors[i+2].use = false;
@@ -220,7 +222,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         for(particle* p : particles) { //loops through each particle
             p->weight = 1; //sets weight to 1 initially so the *= can be used for sensors afterwards
             for(int k = 0; k<3; k++) { //calulates the sensor weights by looping and taking the product of gaussian probability that the sensor readings would be what they are at each particle
-                if(sensors[k].use = true) {
+                if(sensors[k].use) {
                     //Save stanDev^2 in the sensor variable
                     p->weight *= exp(-1*(sensors[k].reading-p->expSense[k])*(sensors[k].reading-p->expSense[k])/(2*sensors[k].stanDev*sensors[k].stanDev));
                 }
@@ -230,7 +232,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         for(particle* p : particles) { //loops through each particle to divide calulated weight by total weight to normalize the weights (Dividing weights by total weights so they are the chance the robot is at that particle out of every other particle)
             p->weight /= totalWeight;
         }
-        
+
         uint32_t end = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "sense update start: %lu done: %lu", start, end);
         uint32_t senseTime = end - start;

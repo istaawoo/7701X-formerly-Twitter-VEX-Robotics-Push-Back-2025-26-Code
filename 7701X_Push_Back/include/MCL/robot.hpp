@@ -91,8 +91,6 @@ public:
 
     void odometer(); //updates robot position based on wheel movements
 
-    void imuRotation(); //updates robot rotation based on imu
-
     void move(float distance, float theta, int timeout, float maxSpeed,                               // move a relative distance along a target heading
               float earlyExitDelta, gaussian errorLat, gaussian errorRot);
 

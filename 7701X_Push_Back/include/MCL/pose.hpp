@@ -30,10 +30,10 @@ struct heading { //defines a float that automatically normalizes to [0,360)
         return *this;
     }
 
-    heading operator-(const heading other) const {
+    float operator-(const heading other) const {
         float diff = theta - other.theta;
-        while(diff >= 180) {diff-=360;}
-        while(diff < -180) {diff+=360;}
+        while(diff > 180) {diff-=360;}
+        while(diff <= -180) {diff+=360;}
         return diff;
     }
 
