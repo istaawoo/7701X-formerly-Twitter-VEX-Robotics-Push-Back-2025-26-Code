@@ -32,8 +32,8 @@ Pose targetPose(0, 0, 0);
 
 void Robot::waitUntil(double threshold) {
     while (true) {
-        double dx = targetPose.x - getPose().x;
-        double dy = targetPose.y - getPose().y;
+        double dx = targetPose.x - robotPose.x;
+        double dy = targetPose.y - robotPose.y;
         double distance = sqrt(dx * dx + dy * dy);
         if (abs(distance <= threshold)) {
             break;
@@ -112,8 +112,8 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
     earlyExitDeltaRot += M_PI/180;
     errorRot *= M_PI/180;
 
-    targetPose.x = getPose().x + distance * sin(theta); //gets the target x position by adding x component of movement vector with current position
-    targetPose.y = getPose().y + distance * cos(theta); //gets the target y position by adding y component of movement vector with current position
+    targetPose.x = robotPose.x + distance * sin(theta); //gets the target x position by adding x component of movement vector with current position
+    targetPose.y = robotPose.y + distance * cos(theta); //gets the target y position by adding y component of movement vector with current position
     targetPose.theta = theta; //gets target theta as heading of movement
 
     PID* lat_pid = nullptr;
@@ -354,15 +354,15 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
             double difference = sqrt(dx * dx + dy * dy);
             double angleError = -atan2(dx, dy) - robotPose.theta;
             // Normalize carrot angleError to [-pi, pi]
-            while (angleError > M_PI) angleError -= 2 * M_PI;
-            while (angleError < -M_PI) angleError += 2 * M_PI;
+            //while (angleError > M_PI) angleError -= 2 * M_PI;
+            //while (angleError < -M_PI) angleError += 2 * M_PI;
 
             double carrotX = targetPose.x - difference*sin(targetPose.theta)*lead;
             double carrotY = targetPose.y - difference*cos(targetPose.theta)*lead;
             double carrotDx = carrotX - robotPose.x;
             double carrotDy = carrotY - robotPose.y;
             double carrotDifference = sqrt(carrotDx*carrotDx + carrotDy*carrotDy);
-            double carrotAngleError = -atan2(dx, dy) - robotPose.theta;
+            double carrotAngleError = -atan2(carrotDx, carrotDy) - robotPose.theta;
 
             // Normalize carrot angleError to [-pi, pi]
             while (carrotAngleError > M_PI) carrotAngleError -= 2 * M_PI;
@@ -562,8 +562,8 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
     earlyExitDelta += M_PI/180;
     errorRot *= M_PI/180;
 
-    float dx = x - getPose().x;
-    float dy = y - getPose().y;
+    float dx = x - robotPose.x;
+    float dy = y - robotPose.y;
     targetPose.theta = -atan2(dx,dy);
 
     PID* turn_pid = nullptr;
@@ -588,7 +588,7 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
         while (true) {
             robotPose.theta = (imus[0]->get_heading() * M_PI/180);
 
-            double dtheta = targetPose.theta - getPose().theta;
+            double dtheta = targetPose.theta - robotPose.theta;
 
             // PID outputs
             double turningPower = turn_pid->calculate(dtheta);
@@ -600,7 +600,7 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
             }
 
             // Check if PID is settled or timeout
-            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (dtheta < earlyExitDelta)) {
+            if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (fabs(dtheta) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
                     left_motors->move(0);

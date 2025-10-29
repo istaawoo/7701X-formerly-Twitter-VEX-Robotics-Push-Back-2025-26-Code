@@ -91,8 +91,13 @@ void disabled() { // task exits when robot is re-enabled
 
 }
 
-void competition_initialize() { // pre-auton; ends when auton begins
+int placedAuton = -1;
 
+void competition_initialize() { // pre-auton; ends when auton begins
+    if(placedAuton != selectedAuton) {
+        robot.place(autonPose[selectedAuton].x, autonPose[selectedAuton].y, autonPose[selectedAuton].theta);
+        placedAuton = selectedAuton;
+    }
 }
 
 void autonomous() {

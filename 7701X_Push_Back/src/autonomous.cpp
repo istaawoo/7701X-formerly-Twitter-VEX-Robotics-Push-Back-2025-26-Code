@@ -21,9 +21,11 @@ std::vector<Auton> autons = {
 
 int selectedAuton = 0;
 
+Pose autonPose[10];
+
 void auton1() {
+    autonPose[0] = {0,0,0};
     //pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Running");
-    robot.place(0, 0, 0, {0,1}, {0,5});
     //pros::delay(500);
     //pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Place Done");
     //robot.checkStart();

@@ -84,31 +84,38 @@ public:
     void setPID(LatPID latPDI, TurnPID turnPID);
 
     void waitUntil(double threshold);
-
-    void place(float x, float y, float theta, gaussian errorLat, gaussian errorRot); //Put the robot at a starting position. initializes particle filter
     
-    void checkStart(); //uses MCL to check and update starting position
+    //Put the robot at a starting position. initializes particle filter
+    void place(float x, float y, float theta, 
+               gaussian errorLat = {0,1}, gaussian errorRot = {0,10});
 
     void odometer(); //updates robot position based on wheel movements
-
-    void move(float distance, float theta, int timeout, float maxSpeed,                               // move a relative distance along a target heading
-              float earlyExitDeltaLin, float earlyExitDeltaRot, gaussian errorLat, gaussian errorRot);
-
-    void moveToPoint(float x, float y, int timeout, float earlyExitDeltaLin,                             // move to global point with final heading along movement
-                    float earlyExitDeltaRot, gaussian errorLat, gaussian errorRot);                            
     
-    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed,                       // move to global point with a target heading
-                    float earlyExitDeltaLin, float earlyExitDeltaRot, float lead,
-                    float horizontalDrift, gaussian errorLat, gaussian errorRot);
+    // move a relative distance along a target heading
+    void move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDeltaLin, float earlyExitDeltaRot,
+              gaussian errorLat = {0,1}, gaussian errorRot = {0,10});
+    
+    // move to global point with final heading along movement
+    void moveToPoint(float x, float y, int timeout, float earlyExitDeltaLin, float earlyExitDeltaRot,
+                    gaussian errorLat = {0,1}, gaussian errorRot = {0,10});                           
+    
+                    // move to global point with a target heading
+                    
+    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float earlyExitDeltaLin,
+                    float earlyExitDeltaRot, float lead, float horizontalDrift,           
+                    gaussian errorLat = {0,1}, gaussian errorRot = {0,10});
 
-    void turn(float thetaRelative, int timeout, float earlyExitDelta,                                 // turn a relative angle
-              gaussian errorLat, gaussian errorRot);
+    // turn a relative angle                
+    void turn(float thetaRelative, int timeout, float earlyExitDelta,                                 
+              gaussian errorLat = {0,0.5}, gaussian errorRot = {0,10});
+    
+    // turn to an absolute heading
+    void turnTo(float thetaAbsolute, int timeout, float earlyExitDelta,                               
+                gaussian errorLat = {0,0.5}, gaussian errorRot = {0,10});
 
-    void turnTo(float thetaAbsolute, int timeout, float earlyExitDelta,                               // turn to an absolute heading
-                gaussian errorLat, gaussian errorRot);
-
-    void turnToPoint(float x, float y, int timeout, float earlyExitDelta,                             // turn to face a global point
-                     gaussian errorLat, gaussian errorRot);
+    // turn to face a global point
+    void turnToPoint(float x, float y, int timeout, float earlyExitDelta,                            
+                     gaussian errorLat = {0,0.5}, gaussian errorRot = {0,10});
 };
 
 //Declare the robot object once, allows use in multiple files.

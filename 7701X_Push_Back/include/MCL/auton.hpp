@@ -31,4 +31,5 @@ void on_right_button();
 // global storage
 extern std::vector<Auton> autons;
 extern int selectedAuton;
+extern Pose autonPose[10];
 
