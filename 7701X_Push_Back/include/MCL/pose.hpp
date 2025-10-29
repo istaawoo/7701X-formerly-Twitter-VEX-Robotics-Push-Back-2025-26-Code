@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 
 struct heading { //defines a float that automatically normalizes to [0,360)
     float theta;
@@ -6,14 +7,14 @@ struct heading { //defines a float that automatically normalizes to [0,360)
     heading(float theta_) : theta(normAngle(theta_)) {}
 
     static float normAngle(float angle) { //Normalizes an angle to [0,360)
-        while(angle >= 360) {angle -= 360;}
-        while(angle < 0) {angle += 360;}
+        while(angle >= 2*M_PI) {angle -= 2*M_PI;}
+        while(angle < 0) {angle += 2*M_PI;}
         return angle;
     }
 
-    heading operator+(const float other) const {return(normAngle(theta+other));}
+    heading operator+(const float other) const {return(heading(theta+other));}
 
-    heading operator-(const float other) const {return(normAngle(theta-other));}
+    heading operator-(const float other) const {return(heading(theta-other));}
 
     heading& operator=(const float other) {
         this->theta = normAngle(other);
@@ -32,8 +33,8 @@ struct heading { //defines a float that automatically normalizes to [0,360)
 
     float operator-(const heading other) const {
         float diff = theta - other.theta;
-        while(diff > 180) {diff-=360;}
-        while(diff <= -180) {diff+=360;}
+        while(diff > M_PI) {diff-=M_PI;}
+        while(diff <= -M_PI) {diff+=M_PI;}
         return diff;
     }
 
@@ -79,4 +80,14 @@ public:
 struct gaussian { //defines a gaussian with a mean and standard deviation
     float mean, stanDev;
     gaussian(float stanDev_, float mean_ = 0) : stanDev(stanDev_), mean(mean_) {}
+
+    gaussian operator*(const float other) {
+        return gaussian(stanDev*other,mean*other);
+    }
+
+    gaussian& operator*=(const float other) {
+        this->mean *= other;
+        this->stanDev *= other;
+        return *this;
+    }
 };

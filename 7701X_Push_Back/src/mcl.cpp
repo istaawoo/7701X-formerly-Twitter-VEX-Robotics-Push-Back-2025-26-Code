@@ -22,7 +22,6 @@
 #include <vector>
 #include <variant>
 #include <random>
-#define M_PI 3.14159265358979323846
 
 //primes randomization:
 std::random_device rd; //uses device randomizer for seed
@@ -39,10 +38,10 @@ void updateSenseData(float rightSensor, float frontSensor, float leftSensor, flo
 }
 */
 
-sensor mclRight(0,0,270,1);
+sensor mclRight(0,0,1.5*M_PI,1);
 //sensor mclFront(0,0,0,1);
-sensor mclLeft(0,0,90,1);
-//sensor mclBack(0,0,180,1);
+sensor mclLeft(0,0,.5*M_PI,1);
+//sensor mclBack(0,0,M_PI,1);
 sensor mclImu1(0,0,0,5);
 //sensor mclImu2(0,0,0,5);
 
@@ -60,8 +59,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
     int yMax = 1828;  //Max Y bound of the field (top right corner)
     //These values make the center of the field (0,0)
 
-    float dx = sin(rayAngle*M_PI/180); //The rate of change in x of the ray
-    float dy = cos(rayAngle*M_PI/180); //The rate of change in y of the ray
+    float dx = sin(rayAngle); //The rate of change in x of the ray
+    float dy = cos(rayAngle); //The rate of change in y of the ray
 
     float tX;
     float tY;
@@ -132,67 +131,15 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         uint32_t start = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu", start);
         for(particle* p : particles) {
-            heading initialTheta = p->theta;
             p->x += dx + randError(errorX);
             p->y += dy + randError(errorY);
             p->theta += dtheta + randError(errorTheta);
-            p->expSense[2] += p->theta - initialTheta;
+            p->expSense[2] = p->theta;
             predictDistance(p);
         }
         uint32_t end = pros::millis();
         pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "move update start: %lu done: %lu", start, end);
         moveTime = end - start - predictSenseTime;
-    }
-
-    void particleFilter::liveMoveUpdate(float dR, float dL, gaussian errorR, gaussian errorL, float* trackWidth) {
-            for(particle* p : particles) {
-                float dR = dR + randError(errorR);
-                float dL = dL + randError(errorL);
-
-                float dtheta = (dL - dR) / *trackWidth; //Change in heading
-                float trackRadius = (dR/dtheta) + (*trackWidth/2); //Radius of the turn based on right wheel
-                float trackChord = 2 * trackRadius * sin(dtheta/2); //Chord length of the turn
-    
-                p->x += trackChord * sin(p->theta + (dtheta/2)); //Change in x position
-                p->y += trackChord * cos(p->theta + (dtheta/2)); //Change in y position
-                p->theta += dtheta;
-                p->expSense[2] += dtheta;
-                predictDistance(p);
-            }
-        }
-
-    //Probably not worth the extra math, more accurate.
-    void particleFilter::turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
-        uint32_t start = pros::millis();
-        for(particle* p : particles) {
-            float initialTheta = p->theta;
-            p->x += randError(errorX);
-            p->y += randError(errorY);
-            p->theta = targetTheta + randError(errorTheta);
-            p->expSense[2] += p->theta - initialTheta;
-            predictDistance(p);
-        }
-        uint32_t end = pros::millis();
-        moveTime = end - start - predictSenseTime;
-    }
-
-    //Probably not worth the extra math, more accurate.
-    void particleFilter::driveDistMoveUpdate(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta) {
-        uint32_t start = pros::millis(); //move update start time
-        for(particle* p : particles) {
-            float initialTheta = p->theta;
-            float dist = targetDistance + randError(errorDistance); //predicted inches moved in this update plus random error
-            float drift = randError(errorDrift); //calculates random drift error
-            float angleShift = atan2(drift,dist); //how much the actual heading of the move shifted during the move
-            float actualDist = sqrt(dist*dist+drift*drift); //the actual distance traveled based on move error and drift
-            p->x += sin((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
-            p->y += cos((p->theta * M_PI/180)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
-            p->theta += randError(errorTheta); //adds random error to particle angle.
-            predictDistance(p);
-            p->expSense[4] += p->theta - initialTheta;
-        }
-        u_int32_t end = pros::millis(); //move update end time
-        moveTime = end - start - predictSenseTime; //total time for mcl
     }
 
     //updates weights of particles based on how likely they are to recieve the sensor data recieved
@@ -209,7 +156,7 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             }
         }
         for(int i = 0; i<1; i++) { //Set readings for each inertial sensor
-            float reading = (*robotImus)[i]->get_rotation();
+            float reading = (*robotImus)[i]->get_heading();
             if(reading != PROS_ERR) { //checks reading is not an error.
                 sensors[i+2].reading = reading;
                 sensors[i+2].use = true;
@@ -416,3 +363,52 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
         move++; //used to print to brain screen, for testing
     }
     */
+
+    /*    void particleFilter::liveMoveUpdate(float dR, float dL, gaussian errorR, gaussian errorL, float* trackWidth) {
+            for(particle* p : particles) {
+                float dR = dR + randError(errorR);
+                float dL = dL + randError(errorL);
+
+                float dtheta = (dL - dR) / *trackWidth; //Change in heading
+                float trackRadius = (dR/dtheta) + (*trackWidth/2); //Radius of the turn based on right wheel
+                float trackChord = 2 * trackRadius * sin(dtheta/2); //Chord length of the turn
+    
+                p->x += trackChord * sin(p->theta + (dtheta/2)); //Change in x position
+                p->y += trackChord * cos(p->theta + (dtheta/2)); //Change in y position
+                p->theta += dtheta;
+                p->expSense[2] += dtheta;
+                predictDistance(p);
+            }
+        }
+
+    //Probably not worth the extra math, more accurate.
+    void particleFilter::turnMoveUpdate(float targetTheta, gaussian errorX, gaussian errorY, gaussian errorTheta) {
+        uint32_t start = pros::millis();
+        for(particle* p : particles) {
+            p->x += randError(errorX);
+            p->y += randError(errorY);
+            p->theta = targetTheta + randError(errorTheta);
+            p->expSense[2] += p->theta;
+            predictDistance(p);
+        }
+        uint32_t end = pros::millis();
+        moveTime = end - start - predictSenseTime;
+    }
+
+    //Probably not worth the extra math, more accurate.
+    void particleFilter::driveDistMoveUpdate(float targetDistance, gaussian errorDistance, gaussian errorDrift, gaussian errorTheta) {
+        uint32_t start = pros::millis(); //move update start time
+        for(particle* p : particles) {
+            float dist = targetDistance + randError(errorDistance); //predicted inches moved in this update plus random error
+            float drift = randError(errorDrift); //calculates random drift error
+            float angleShift = atan2(drift,dist); //how much the actual heading of the move shifted during the move
+            float actualDist = sqrt(dist*dist+drift*drift); //the actual distance traveled based on move error and drift
+            p->x += sin((p->theta)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
+            p->y += cos((p->theta)-angleShift)*actualDist; //Uses linar distance and drift to caluclate x position
+            p->theta += randError(errorTheta); //adds random error to particle angle.
+            predictDistance(p);
+            p->expSense[2] += p->theta;
+        }
+        u_int32_t end = pros::millis(); //move update end time
+        moveTime = end - start - predictSenseTime; //total time for mcl
+    }*/
