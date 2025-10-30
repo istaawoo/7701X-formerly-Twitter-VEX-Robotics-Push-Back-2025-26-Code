@@ -69,11 +69,6 @@ void initialize() { // runs initialization; keep execution time under three seco
     robot.mclDistances.push_back(std::make_unique<Distance>(7));
     robot.mclDistances.push_back(std::make_unique<Distance>(5));
     robot.mclDistances.push_back(std::make_unique<Distance>(6));
-    
-    //calibrate IMUs
-    imu1.reset();
-    imu2.reset();
-    
 
     left_motors.set_zero_position_all(0);
     right_motors.set_zero_position_all(0);
@@ -91,13 +86,12 @@ void disabled() { // task exits when robot is re-enabled
 
 }
 
-int placedAuton = -1;
-
 void competition_initialize() { // pre-auton; ends when auton begins
-    if(placedAuton != selectedAuton) {
-        robot.place(autonPose[selectedAuton].x, autonPose[selectedAuton].y, autonPose[selectedAuton].theta);
-        placedAuton = selectedAuton;
-    }
+    //calibrate IMUs
+    imu1.reset();
+    imu2.reset();
+
+    robot.place(autonPose[selectedAuton].x, autonPose[selectedAuton].y, autonPose[selectedAuton].theta);
 }
 
 void autonomous() {

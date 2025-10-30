@@ -1,14 +1,12 @@
 #pragma once
 
 #include "pros/motor_group.hpp"
-//#include "mcl/robot.hpp"
 #include "mcl/pose.hpp"
 #include <vector>
-#include <variant>
 
 struct sensor { //defines a sensor position with offset from center of roation in Y and X and angle facing from front of robot. Stores if we are using the sensor
-    //std::variant<pros::Distance, pros::Imu, pros::Rotation> theSensor; //not needed in testing
     float offX, offY, face, reading, stanDev;
+    float inv2stanDev2 = 1/(2*stanDev*stanDev); //Saves computation by calculating inverse of 2*standard deviation squared once.
     bool use = true;
 
     sensor(float offX_, float offY_, float face_, float stanDev_) : offX(offX_), offY(offY_), face(face_), stanDev(stanDev_) {}

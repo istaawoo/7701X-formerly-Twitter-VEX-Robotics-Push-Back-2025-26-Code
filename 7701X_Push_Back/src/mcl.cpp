@@ -38,11 +38,11 @@ void updateSenseData(float rightSensor, float frontSensor, float leftSensor, flo
 }
 */
 
-sensor mclRight(0,0,1.5*M_PI,1);
+sensor mclRight(0,0,1.5*M_PI,10);
 //sensor mclFront(0,0,0,1);
-sensor mclLeft(0,0,.5*M_PI,1);
+sensor mclLeft(0,0,.5*M_PI,10);
 //sensor mclBack(0,0,M_PI,1);
-sensor mclImu1(0,0,0,5);
+sensor mclImu1(0,0,0,5*M_PI/180);
 //sensor mclImu2(0,0,0,5);
 
 sensor sensors[3] = {mclRight,mclLeft,mclImu1};
@@ -171,7 +171,8 @@ float rayCastWalls(float orginX, float orginY, float rayAngle) { //Input the ray
             for(int k = 0; k<3; k++) { //calulates the sensor weights by looping and taking the product of gaussian probability that the sensor readings would be what they are at each particle
                 if(sensors[k].use) {
                     //Save stanDev^2 in the sensor variable
-                    p->weight *= exp(-1*(sensors[k].reading-p->expSense[k])*(sensors[k].reading-p->expSense[k])/(2*sensors[k].stanDev*sensors[k].stanDev));
+                    float diff = sensors[k].reading-p->expSense[k];
+                    p->weight *= exp(-diff*diff*sensors[k].inv2stanDev2);
                 }
             }
             totalWeight += p->weight; //adds unNormalized weight of each particle to total weight

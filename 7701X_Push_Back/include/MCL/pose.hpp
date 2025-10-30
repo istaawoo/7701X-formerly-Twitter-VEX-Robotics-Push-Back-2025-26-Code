@@ -85,9 +85,19 @@ struct gaussian { //defines a gaussian with a mean and standard deviation
         return gaussian(stanDev*other,mean*other);
     }
 
+    gaussian operator/(const float other) {
+        return gaussian(stanDev/other,mean/other);
+    }
+
     gaussian& operator*=(const float other) {
         this->mean *= other;
         this->stanDev *= other;
+        return *this;
+    }
+
+    gaussian& operator/=(const float other) {
+        this->mean /= other;
+        this->stanDev /= other;
         return *this;
     }
 };

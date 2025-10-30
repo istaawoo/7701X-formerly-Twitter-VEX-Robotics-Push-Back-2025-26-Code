@@ -21,7 +21,7 @@ std::vector<Auton> autons = {
 
 int selectedAuton = 0;
 
-Pose autonPose[10];
+Pose autonPose[14];
 
 void auton1() {
     autonPose[0] = {0,0,0};
@@ -46,55 +46,55 @@ void auton1() {
 }
 
 void auton2() {
-
+    autonPose[1] = {0,0,0};
 }
 
 void auton3() {
-
+    autonPose[2] = {0,0,0};
 }
 
 void auton4() {
-
+    autonPose[3] = {0,0,0};
 }
 
 void auton5() {
-
+    autonPose[4] = {0,0,0};
 }
 
 void auton6() {
-
+    autonPose[5] = {0,0,0};
 }
 
 void auton7() {
-
+    autonPose[6] = {0,0,0};
 }
 
 void auton8() {
-
+    autonPose[7] = {0,0,0};
 }
 
 void auton9() {
-
+    autonPose[8] = {0,0,0};
 }
 
 void auton10() {
-
+    autonPose[9] = {0,0,0};
 }
 
 void auton11() {
-
+    autonPose[10] = {0,0,0};
 }
 
 void auton12() {
-
+    autonPose[11] = {0,0,0};
 }
 
 void noAuton() {
-
+    autonPose[12] = {0,0,0};
 }
 
 void skillsAuton() {
-
+    autonPose[13] = {0,0,0};
 }
 
 

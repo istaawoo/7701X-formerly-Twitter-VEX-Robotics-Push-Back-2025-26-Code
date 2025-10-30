@@ -92,17 +92,17 @@ public:
     void odometer(); //updates robot position based on wheel movements
     
     // move a relative distance along a target heading
-    void move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDeltaLin, float earlyExitDeltaRot,
+    void move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta,
               gaussian errorLat = {0,1}, gaussian errorRot = {0,10});
     
     // move to global point with final heading along movement
-    void moveToPoint(float x, float y, int timeout, float earlyExitDeltaLin, float earlyExitDeltaRot,
+    void moveToPoint(float x, float y, int timeout, float earlyExitDelta,
                     gaussian errorLat = {0,1}, gaussian errorRot = {0,10});                           
     
                     // move to global point with a target heading
                     
-    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float earlyExitDeltaLin,
-                    float earlyExitDeltaRot, float lead, float horizontalDrift,           
+    void moveToPose(float x, float y, float theta, int timeout, float maxSpeed, float earlyExitDelta,
+                    float lead, float horizontalDrift,           
                     gaussian errorLat = {0,1}, gaussian errorRot = {0,10});
 
     // turn a relative angle                
