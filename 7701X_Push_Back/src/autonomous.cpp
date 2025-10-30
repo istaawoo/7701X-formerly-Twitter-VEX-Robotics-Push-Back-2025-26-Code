@@ -34,8 +34,8 @@ void auton1() {
     //robot.move(24, 0, 2000, 1, 0, {0,1}, {0,5});
     //pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "Turn Start");
 
-    robot.turn(90,5000,0);
-    robot.turn(-90,5000,0);
+    robot.turnTo(90,1000,0);
+    robot.turnTo(0,1000,0);
     pros::delay(500);
     
     //pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "predictSense Time: %lu", robot.robotFilter.predictSenseTime);

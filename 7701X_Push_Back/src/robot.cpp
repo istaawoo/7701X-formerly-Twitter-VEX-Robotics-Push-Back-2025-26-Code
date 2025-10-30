@@ -7,7 +7,7 @@ PID latteral_high_qual(5, 0, 0);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
-PID turning_high_qual(20, 0, 0);   // turn_one
+PID turning_high_qual(60, 0, 0);   // turn_one
 PID turning_med_qual(100, 30, 50);	  // turn_two
 PID turning_low_qual(160, 120, 100);  // turn_three
 
