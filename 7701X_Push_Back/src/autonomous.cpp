@@ -31,7 +31,7 @@ void auton1() {
     //robot.checkStart();
     //pros::delay(500);
     //pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Check Start Done");
-    //robot.move(24, 0, 2000, 1.0, 0, {0,1}, {0,5});
+    robot.move(24, 0, 2000, 1.0, 0, {0,1}, {0,5});
     pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "Turn Start");
     robot.turn(90,5000,0,{0,1},{0,5});
     pros::delay(500);

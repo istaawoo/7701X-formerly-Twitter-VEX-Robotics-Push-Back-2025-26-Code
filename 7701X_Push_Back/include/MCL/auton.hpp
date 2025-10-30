@@ -1,4 +1,5 @@
 #pragma once
+#include "mcl/pose.hpp"
 #include <vector>
 #include <string>
 #include <functional>
