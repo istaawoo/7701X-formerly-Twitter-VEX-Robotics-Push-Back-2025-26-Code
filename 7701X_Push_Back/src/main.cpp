@@ -82,7 +82,9 @@ void initialize() { // runs initialization; keep execution time under three seco
 	turning_low_qual.setExitConditions(5*M_PI/180, 250, 5000);
 
 	pros::Task screenTask([] {
-		
+		pros::screen::erase_rect(0,160,480,240);
+        pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robot.getPose().x,robot.getPose().y,float(robot.getPose().theta)*180/M_PI);
+        pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
 	});
 }
 

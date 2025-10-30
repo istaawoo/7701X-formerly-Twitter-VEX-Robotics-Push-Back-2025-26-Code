@@ -150,10 +150,6 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
         while (true) {
             odometer(); //Uses motor encoders to update robot position
 
-            pros::screen::erase_rect(0,160,480,240);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robotPose.x,robotPose.y,float(robotPose.theta)*180/M_PI);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
-
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
             double difference = sqrt(dx * dx + dy * dy);
@@ -438,10 +434,6 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
         while (true) {
             robotPose.theta = (imus[0]->get_heading() * M_PI/180);
             
-            pros::screen::erase_rect(0,160,480,240);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robotPose.x,robotPose.y,float(robotPose.theta)*180/M_PI);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
-
             double dtheta = targetPose.theta - robotPose.theta;
 
             // PID outputs

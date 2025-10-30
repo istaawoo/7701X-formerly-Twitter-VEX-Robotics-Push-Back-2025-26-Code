@@ -120,6 +120,7 @@ public:
 
 //Declare the robot object once, allows use in multiple files.
 extern Robot robot;
+extern Pose targetPose;
 
 extern PID latteral_high_qual;
 extern PID latteral_med_qual;
