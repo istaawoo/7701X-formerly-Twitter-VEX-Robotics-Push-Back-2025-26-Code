@@ -1,4 +1,4 @@
 ﻿#pragma once
 
-// wrapper to make lv_conf_internal available for compilers
+// wrapper so ../lv_conf_internal.h resolves inside liblvgl headers
 #include "liblvgl/lv_conf_internal.h"
