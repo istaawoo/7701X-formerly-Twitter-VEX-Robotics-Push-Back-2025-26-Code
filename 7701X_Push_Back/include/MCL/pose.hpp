@@ -34,7 +34,6 @@ struct heading { //defines a float that automatically normalizes to [0,360)
     }
 
     float operator-(const heading other) const {
-        pros::screen::print(pros::E_TEXT_MEDIUM, 2 , "StuffL %f, %f",theta, other.theta);
         float diff = theta - other.theta;
         while(diff > M_PI) {diff-=2*M_PI;}
         while(diff <= -M_PI) {diff+=2*M_PI;}
