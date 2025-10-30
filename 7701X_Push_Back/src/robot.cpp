@@ -3,13 +3,13 @@
 #include "mcl/mcl.hpp"
 #include <cmath>
 
-PID latteral_high_qual(5, 0, 1);  // lat_one
+PID latteral_high_qual(5, 0, 0);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
-PID turning_high_qual(2, 0, 1);   // turn_one
-PID turning_med_qual(5, 1, 5);	  // turn_two
-PID turning_low_qual(10, 5, 10);  // turn_three
+PID turning_high_qual(60, 0, 0);   // turn_one
+PID turning_med_qual(100, 30, 50);	  // turn_two
+PID turning_low_qual(160, 120, 100);  // turn_three
 
 bool finished = true;
 
@@ -35,7 +35,7 @@ void Robot::waitUntil(double threshold) {
         double dx = targetPose.x - robotPose.x;
         double dy = targetPose.y - robotPose.y;
         double distance = sqrt(dx * dx + dy * dy);
-        if (abs(distance <= threshold)) {
+        if (abs(distance) <= threshold) {
             break;
         }
         pros::delay(20);
@@ -145,24 +145,25 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
     lat_pid->reset();
     turn_pid->reset();
 
-    pros::screen::print(pros::E_TEXT_MEDIUM, 6 , "Robot Start Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
-
     pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
             odometer(); //Uses motor encoders to update robot position
 
-            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %f, %f, %f",targetPose.x,targetPose.y,targetPose.theta);
+            pros::screen::erase_rect(0,160,480,240);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robotPose.x,robotPose.y,float(robotPose.theta)*180/M_PI);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
 
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
             double difference = sqrt(dx * dx + dy * dy);
-            double angleError = -atan2(dx, dy) - robotPose.theta;
+            double angleError = atan2(dx, dy) - robotPose.theta;
             
             // Normalize angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
+
+            pros::screen::print(pros::E_TEXT_MEDIUM, 6 , "Angle Error: %.2f",angleError*180/M_PI);
 
             // PID outputs
             double lateralPower = lat_pid->calculate(difference) * cos(angleError);
@@ -187,7 +188,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
                 //robotFilter.senseUpdate();
                 //robotPose = robotFilter.predictPosition();
                 finished = true;
-                pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Move Done");
+                pros::screen::print(pros::E_TEXT_MEDIUM, 10 , "Move Done");
                 break;
             }
             pros::delay(20);
@@ -415,9 +416,6 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
     targetPose.y = robotPose.y;
     targetPose.theta = robotPose.theta + thetaRelative;
 
-    pros::screen::print(pros::E_TEXT_MEDIUM, 3 , "Robot Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
-    pros::screen::print(pros::E_TEXT_MEDIUM, 4 , "Target Pose: %f, %f, %f",targetPose.x,targetPose.y,targetPose.theta);
-
     PID* turn_pid = nullptr;
     switch (turning_PID) {
     case TurnPID::turn_one:
@@ -440,14 +438,14 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
         while (true) {
             robotPose.theta = (imus[0]->get_heading() * M_PI/180);
             
-            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %f, %f, %f",robotPose.x,robotPose.y,robotPose.theta);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %f, %f, %f",targetPose.x,targetPose.y,targetPose.theta);
+            pros::screen::erase_rect(0,160,480,240);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robotPose.x,robotPose.y,float(robotPose.theta)*180/M_PI);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
 
             double dtheta = targetPose.theta - robotPose.theta;
 
             // PID outputs
             double turningPower = turn_pid->calculate(dtheta);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 10 , "Turn Power: %d", turningPower);
 
             // Set motor power
             if (left_motors && right_motors) {
@@ -463,7 +461,7 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
                     right_motors->move(0);
                 }
                 finished = true;
-                pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Turn Done");
+                pros::screen::print(pros::E_TEXT_MEDIUM, 11 , "Turn Done");
                 break;
             }
             pros::delay(20);
@@ -514,6 +512,10 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta, gauss
         int startTime = pros::millis();
         while (true) {
             robotPose.theta = (imus[0]->get_heading() * M_PI/180);
+
+            pros::screen::erase_rect(0,160,480,240);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robotPose.x,robotPose.y,float(robotPose.theta)*180/M_PI);
+            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
 
             double dtheta = targetPose.theta - robotPose.theta;
 
