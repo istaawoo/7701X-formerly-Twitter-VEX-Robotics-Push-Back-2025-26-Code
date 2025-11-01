@@ -43,7 +43,6 @@ void Robot::waitUntil(double threshold) {
         }
         pros::delay(20);
     }
-    finished = true;
 }
 
 void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian errorRot) {
@@ -58,7 +57,7 @@ void Robot::place(float x, float y, float theta, gaussian errorLat, gaussian err
     //robotFilter.senseUpdate();
     //robotPose = robotFilter.predictPosition();
 
-    imus[0]->set_heading(robotPose.theta * 180/M_PI);
+    imus[0]->set_heading(theta * 180/M_PI);
 }
 
 void Robot::setPID(LatPID latPID, TurnPID turnPID) {
@@ -66,7 +65,7 @@ void Robot::setPID(LatPID latPID, TurnPID turnPID) {
     this->turning_PID = turnPID;
 }
 
-void waitUntilFinished() {
+void Robot::waitUntilFinished() {
     while (!finished) {
         pros::delay(20);
     }

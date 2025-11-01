@@ -87,6 +87,8 @@ public:
     void setPID(LatPID latPDI, TurnPID turnPID);
 
     void waitUntil(double threshold);
+
+    void waitUntilFinished();
     
     //Put the robot at a starting position. initializes particle filter
     void place(float x, float y, float theta, 
@@ -95,7 +97,7 @@ public:
     void odometer(); //updates robot position based on wheel movements
     
     // move a relative distance along a target heading
-    void move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta,
+    void move(float distance, float theta, int timeout, float maxSpeed, float earlyExitDelta = 0,
               gaussian errorLat = {0,1}, gaussian errorRot = {0,10});
     
     // move to global point with final heading along movement

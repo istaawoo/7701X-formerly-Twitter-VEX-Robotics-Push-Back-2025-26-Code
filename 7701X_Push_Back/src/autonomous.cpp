@@ -4,10 +4,10 @@
 
 std::vector<Auton> autons = {
     {"Right Solo AWP", auton1},
-    {"Right Center Goal Rush", auton2},
-    {"Right Long Goal Rush", auton3},
-    {"", auton4},
-    {"", auton5},
+    {"Left Center Goal Rush", auton2},
+    {"Right Center Goal Rush", auton3},
+    {"Left Long Goal Rush", auton4},
+    {"Right Long Goal Rush", auton5},
     {"", auton6},
     {"", auton7},
     {"", auton8},
@@ -19,7 +19,7 @@ std::vector<Auton> autons = {
     {"SKILLS AUTON", skillsAuton},
 };
 
-int selectedAuton = 2 - 1;
+int selectedAuton = 3 - 1;
 
 Pose autonPose[14];
 
@@ -49,20 +49,34 @@ void auton1() {
 }
 
 void auton2() {
-    autonPose[1] = {0,0,0};
-    robot.intake1->move_voltage(12000);
-    robot.move(36, 0, 2000, 127, 0);
-    pros::delay(500);
-    robot.turnTo(225, 1000, 0);
-    robot.move(-12,45,2000,60,0);
-    robot.intake2->move_voltage(-12000);
-    pros::delay(2000);
-    robot.intake1->brake();
+    robot.move(29,320,3000,70,0);
+    robot.waitUntil(14);
+    robot.intake2->move_voltage(12000);
+    pros::delay(1200);
     robot.intake2->brake();
+    robot.turnTo(225,1000,0);
+    robot.move(-13,225,2000,100,0);
+    robot.waitUntilFinished();
+    robot.intake2->move_voltage(12000);
+    robot.intake1->move_voltage(-12000);
+    pros::delay(3000);
+    robot.intake2->brake();
+    robot.intake1->brake();
 }
 
 void auton3() {
-    autonPose[2] = {0,0,0};
+    robot.move(29,30,3000,70,0);
+    robot.waitUntil(14);
+    robot.intake2->move_voltage(12000);
+    pros::delay(1200);
+    robot.intake2->brake();
+    robot.turnTo(315,1000,0);
+    robot.move(13,315,2000,100,0);
+    robot.waitUntil(8);
+    robot.intake2->move_voltage(-12000);
+    robot.waitUntil(1);
+    robot.intake2->brake();
+    robot.intake1->brake();
 }
 
 void auton4() {
@@ -106,7 +120,41 @@ void noAuton() {
 }
 
 void skillsAuton() {
-    autonPose[13] = {0,0,0};
+    robot.move(29,320,3000,70,0);
+    robot.waitUntil(14);
+    robot.intake2->move_voltage(12000);
+    pros::delay(1200);
+    robot.intake2->brake();
+    robot.turnTo(225,1000,0);
+    robot.move(-13,225,2000,100,0);
+    robot.waitUntilFinished();
+    robot.intake2->move_voltage(12000);
+    robot.intake1->move_voltage(-12000);
+    pros::delay(3000);
+    robot.intake2->brake();
+    robot.intake1->brake();
+    robot.move(13,225,2000,100);
+    robot.turnTo(90,1000,0);
+    robot.move(48,90,3000,100);
+    robot.waitUntil(14);
+    robot.intake2->move_voltage(12000);
+    pros::delay(1200);
+    robot.intake2->brake();
+    robot.turnTo(315,1000,0);
+    robot.move(13,315,2000,100,0);
+    robot.waitUntil(8);
+    robot.intake2->move_voltage(-12000);
+    robot.waitUntil(1);
+    robot.intake2->brake();
+    robot.intake1->brake();
+    robot.move(-13,315,2000,100);
+    robot.turnTo(0,1000,0);
+    robot.move(-36,0,4000,100);
+    robot.turnTo(270,1000,0);
+    robot.intake2->move_voltage(-12000);
+    robot.move(72,270,4000,127);
+
+
 }
 
 

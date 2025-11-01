@@ -6,7 +6,7 @@
 struct heading { //defines a float that automatically normalizes to [0,360)
     float theta;
 
-    heading(float theta_) : theta(normAngle(theta_)) {}
+    heading(float theta_) : theta(normAngle(theta_*M_PI/180)) {}
 
     static float normAngle(float angle) { //Normalizes an angle to [0,360)
         while(angle >= 2*M_PI) {angle -= 2*M_PI;}

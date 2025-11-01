@@ -1,6 +1,6 @@
-#include "screen.hpp"
+#include "mcl/screen.hpp"
 #include "main.h"
-#include "auton.hpp"
+#include "mcl/auton.hpp"
 
 #define LINE_HEIGHT 40
 #define PADDING 5

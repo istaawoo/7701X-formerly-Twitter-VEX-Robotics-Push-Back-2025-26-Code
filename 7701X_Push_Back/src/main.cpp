@@ -62,6 +62,10 @@ Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, &intake1, 
 
 Controller controller(pros::E_CONTROLLER_MASTER);
 
+ADIDigitalOut parkLeft('H');
+ADIDigitalOut parkRight('G');
+ADIDigitalOut matchLoader('F');
+
 void initialize() { // runs initialization; keep execution time under three seconds
     //Adds sensors to the robot sensor vectors
     robot.imus.push_back(std::make_unique<Imu>(8));
@@ -83,9 +87,10 @@ void initialize() { // runs initialization; keep execution time under three seco
 
 	pros::Task screenTask([] {
 		while(true) {
+            pros::screen::print(pros::E_TEXT_MEDIUM, 3, "IMU: %f", imu1.get_heading());
             pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robot.getPose().x,robot.getPose().y,float(robot.getPose().theta)*180/M_PI);
             pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
-            pros::delay(20);
+            pros::delay(200);
         }
     });
         
@@ -99,9 +104,17 @@ void disabled() { // task exits when robot is re-enabled
 void competition_initialize() { // pre-auton; ends when auton begins
     //calibrate IMUs
     imu1.reset(true);
+    imu1.set_heading(autonPose[selectedAuton].theta*180/M_PI);
     imu2.reset(true);
 
-    robot.place(autonPose[selectedAuton].x, autonPose[selectedAuton].y, autonPose[selectedAuton].theta);
+    left_motors.set_zero_position_all(0);
+    right_motors.set_zero_position_all(0);
+
+    autonPose[1] = {0,0,320};
+    autonPose[2] = {0,0,40};
+    autonPose[13] = {0,0,320};
+
+    robot.place(autonPose[selectedAuton].x, autonPose[selectedAuton].y, autonPose[selectedAuton].theta*180/M_PI);
 }
 
 void autonomous() {
@@ -110,6 +123,9 @@ void autonomous() {
 
 void opcontrol() {
 	bool shift = false;
+    bool park = false;
+    bool matchLoadDown = false;
+    bool L1pressed = false;
 
 	while (true) {
 		int rightStickX = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
@@ -122,13 +138,13 @@ void opcontrol() {
         
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             if (!shift) {
-                intake1.move_voltage(12000);
+                intake2.move_voltage(12000);
             } else {
-                intake1.move_voltage(-12000);
+                intake2.move_voltage(-12000);
             }
         } else {
             if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) && !controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                intake1.brake();
+                intake2.brake();
             }
         }
 
@@ -137,16 +153,39 @@ void opcontrol() {
                 intake1.move_voltage(12000); // 
                 intake2.move_voltage(12000);
             } else {
-                intake1.move_voltage(12000); //
-                intake2.move_voltage(-12000);
+                intake1.move_voltage(-12000); //
+                intake2.move_voltage(12000);
             }
         } else if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                intake2.brake();
+                intake1.brake();
+        }
+        
+		if(shift && controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && !L1pressed) {
+            park = !park;
+            if(park) {
+                parkLeft.set_value(1);
+                parkRight.set_value(1);
+            } else {
+                parkLeft.set_value(0);
+                parkRight.set_value(0);
+            }
+            L1pressed = true;
         }
 
-		
-		
-		
+        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && !L1pressed) {
+            matchLoadDown = !matchLoadDown;
+            if(matchLoadDown) {
+                matchLoader.set_value(0);
+            } else {
+                matchLoader.set_value(1);
+            }
+            L1pressed = true;
+        }
+        
+        if(!controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) L1pressed = false;
+
+        //L1pressed = E_CONTROLLER_DIGITAL_L1;
+
 		pros::delay(20);
 	}
 }
