@@ -152,8 +152,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
             double angleError = targetPose.theta - robotPose.theta;
-            double difference = sqrt(dx * dx + dy * dy);
-            double angleToTarget = cos(atan2(dx,dy) - robotPose.theta);
+            double difference = sqrt(dx * dx + dy * dy) * cos(atan2(dx,dy) - robotPose.theta);
 
             pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "Angle Error: %.2f",angleError*180/M_PI);
 
@@ -164,7 +163,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             pros::screen::print(pros::E_TEXT_MEDIUM, 6 , "Angle Error: %.2f",angleError*180/M_PI);
 
             // PID outputs
-            double lateralPower = lat_pid->calculate(difference) * cos(angleToTarget);
+            double lateralPower = lat_pid->calculate(difference);
             double turningPower = turn_pid->calculate(angleError); // * sin(angleToTarget);
             
             // Set motor power
