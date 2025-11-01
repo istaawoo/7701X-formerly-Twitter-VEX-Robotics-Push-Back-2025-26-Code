@@ -19,7 +19,7 @@ std::vector<Auton> autons = {
     {"SKILLS AUTON", skillsAuton},
 };
 
-int selectedAuton = 0;
+int selectedAuton = 2 - 1;
 
 Pose autonPose[14];
 
@@ -50,6 +50,8 @@ void auton1() {
 
 void auton2() {
     autonPose[1] = {0,0,0};
+    robot.move(24, 0, 2000, 0, 0);
+    robot.turnTo(90, 1000, 0);
 }
 
 void auton3() {

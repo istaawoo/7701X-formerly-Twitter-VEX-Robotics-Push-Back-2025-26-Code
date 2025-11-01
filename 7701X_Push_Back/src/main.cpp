@@ -107,49 +107,40 @@ void autonomous() {
 }
 
 void opcontrol() {
-    initialize();
-    competition_initialize();
-    pros::delay(3000);
-    autonomous();
-
 	bool shift = false;
 
 	while (true) {
 		int rightStickX = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
 		int leftStickY = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 
+        left_motors.move(leftStickY + rightStickX);
+		right_motors.move(leftStickY - rightStickX);
+
 		shift = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
         
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             if (!shift) {
                 intake1.move_voltage(12000);
-                intake2.move_voltage(12000);
             } else {
                 intake1.move_voltage(-12000);
-                intake2.move_voltage(12000);
             }
         } else {
-            if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) && !controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
                 intake1.brake();
-                intake2.brake();
             }
         }
 
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             if (!shift) {
-                intake1.move_voltage(-12000); // 
+                intake1.move_voltage(12000); // 
                 intake2.move_voltage(12000);
             } else {
-                intake1.move_voltage(-12000); //
+                intake1.move_voltage(12000); //
                 intake2.move_voltage(-12000);
             }
         } else if (!controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                intake1.brake();
                 intake2.brake();
         }
-
-		left_motors.move(leftStickY + rightStickX);
-		right_motors.move(leftStickY - rightStickX);
 
 		
 		
