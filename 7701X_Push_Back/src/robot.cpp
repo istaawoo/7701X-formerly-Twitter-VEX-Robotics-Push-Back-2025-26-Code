@@ -3,7 +3,7 @@
 #include "mcl/mcl.hpp"
 #include <cmath>
 
-PID latteral_high_qual(5, 0, 8);  // lat_one
+PID latteral_high_qual(3, 0.5, 18);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
@@ -172,7 +172,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             }
 
             // Check if PID is settled or timeout
-            if ((lat_pid->isSettled(difference)) 
+            if ((lat_pid->isSettled(difference))
                 || (pros::millis() - startTime > timeout)
                 || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
