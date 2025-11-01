@@ -151,7 +151,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
 
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
-            double angleError = targetPose.theta - robotPose.theta;
+            double angleError = targetPose.theta - robotPose.theta + distance < 0 ? M_PI : 0;
             double difference = sqrt(dx * dx + dy * dy) * cos(atan2(dx,dy) - robotPose.theta);
 
             pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "Angle Error: %.2f",angleError*180/M_PI);
