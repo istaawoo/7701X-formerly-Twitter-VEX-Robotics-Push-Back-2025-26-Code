@@ -165,7 +165,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
 
             // PID outputs
             double lateralPower = lat_pid->calculate(difference) * cos(angleToTarget);
-            double turningPower = turn_pid->calculate(angleError) * sin(angleToTarget);
+            double turningPower = turn_pid->calculate(angleError); // * sin(angleToTarget);
             
             // Set motor power
             if (left_motors && right_motors) {
