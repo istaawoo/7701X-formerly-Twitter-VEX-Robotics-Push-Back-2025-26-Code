@@ -3,7 +3,7 @@
 #include "mcl/mcl.hpp"
 #include <cmath>
 
-PID latteral_high_qual(6, 1, 0);  // lat_one
+PID latteral_high_qual(6, 0, 4);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
@@ -151,8 +151,9 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
 
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
-            double angleError = targetPose.theta - robotPose.theta + distance < 0 ? M_PI : 0;
-            double difference = sqrt(dx * dx + dy * dy) * cos(atan2(dx,dy) - robotPose.theta);
+            double angleToTarget = atan2(dx,dy);
+            double angleError = angleToTarget - (robotPose.theta + distance < 0 ? M_PI : 0);
+            double difference = sqrt(dx * dx + dy * dy) * cos(angleToTarget - robotPose.theta);
 
             pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "Angle Error: %.2f",angleError*180/M_PI);
 
@@ -164,7 +165,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
 
             // PID outputs
             double lateralPower = lat_pid->calculate(difference);
-            double turningPower = turn_pid->calculate(angleError); // * sin(angleToTarget);
+            double turningPower = turn_pid->calculate(angleError) * difference < 6 ? 0 : 1;
             
             // Set motor power
             if (left_motors && right_motors) {
