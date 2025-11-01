@@ -88,6 +88,8 @@ void initialize() { // runs initialization; keep execution time under three seco
             pros::delay(20);
         }
     });
+        
+    pros::Task autonSelector(handleTouch);
 }
 
 void disabled() { // task exits when robot is re-enabled
