@@ -3,11 +3,11 @@
 #include "mcl/mcl.hpp"
 #include <cmath>
 
-PID latteral_high_qual(5, 0, 0);  // lat_one
+PID latteral_high_qual(6, 1, 0);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
-PID turning_high_qual(60, 0, 0);   // turn_one
+PID turning_high_qual(170, 1, 650);   // turn_one
 PID turning_med_qual(100, 30, 50);	  // turn_two
 PID turning_low_qual(160, 120, 100);  // turn_three
 
@@ -99,7 +99,6 @@ void Robot::odometer() {
         robotPose.x += trackChord * sin(robotPose.theta + dTheta/2);
         robotPose.y += trackChord * cos(robotPose.theta + dTheta/2);
     }
-
     robotPose.theta = (imus[0]->get_heading() * M_PI/180);
 }
 
@@ -148,13 +147,15 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
     pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
-            odometer(); //Uses motor encoders to update robot position
+            odometer();
 
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
-            double difference = sqrt(dx * dx + dy * dy);
-            double angleError = atan2(dx, dy) - robotPose.theta;
-            
+            double angleError = targetPose.theta - robotPose.theta;
+            double difference = sqrt(dx * dx + dy * dy) * cos(atan2(dx,dy) - robotPose.theta);
+
+            pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "Angle Error: %.2f",angleError*180/M_PI);
+
             // Normalize angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
@@ -164,7 +165,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             // PID outputs
             double lateralPower = lat_pid->calculate(difference) * cos(angleError);
             double turningPower = turn_pid->calculate(angleError) * sin(angleError);
-
+            
             // Set motor power
             if (left_motors && right_motors) {
                 left_motors->move(lateralPower - turningPower);
@@ -177,8 +178,8 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
                 || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
-                    left_motors->move(0);
-                    right_motors->move(0);
+                    left_motors->brake();
+                    right_motors->brake();
                 }
 
                 //robotFilter.senseUpdate();
@@ -247,7 +248,6 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
         int startTime = pros::millis();
         
         while (true) {
-            odometer(); //Uses motor encoders to update robot position
 
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
@@ -273,8 +273,8 @@ void Robot::moveToPoint(float x, float y, int timeout, float earlyExitDelta, gau
                 || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
-                    left_motors->move(0);
-                    right_motors->move(0);
+                    left_motors->brake();
+                    right_motors->brake();
                 }
                 finished = true;
                 break;
@@ -342,7 +342,8 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
         int startTime = pros::millis();
         while (true) {
             odometer(); //Uses motor encoders to update robot position
-
+            robotPose.theta = (imus[0]->get_heading() * M_PI/180);
+            
             double dx = targetPose.x - robotPose.x;
             double dy = targetPose.y - robotPose.y;
             double difference = sqrt(dx * dx + dy * dy);
@@ -378,8 +379,8 @@ void Robot::moveToPose(float x, float y, float theta, int timeout, float maxSpee
                 || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
-                    left_motors->move(0);
-                    right_motors->move(0);
+                    left_motors->brake();
+                    right_motors->brake();
                 }
                 finished = true;
                 break;
@@ -432,8 +433,8 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
     pros::Task turnTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
-            robotPose.theta = (imus[0]->get_heading() * M_PI/180);
-            
+            odometer();
+
             double dtheta = targetPose.theta - robotPose.theta;
 
             // PID outputs
@@ -449,8 +450,8 @@ void Robot::turn(float thetaRelative, int timeout, float earlyExitDelta, gaussia
             if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (fabs(dtheta) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
-                    left_motors->move(0);
-                    right_motors->move(0);
+                    left_motors->brake();
+                    right_motors->brake();
                 }
                 finished = true;
                 pros::screen::print(pros::E_TEXT_MEDIUM, 11 , "Turn Done");
@@ -503,16 +504,14 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta, gauss
     pros::Task turnToTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
-            robotPose.theta = (imus[0]->get_heading() * M_PI/180);
-
-            pros::screen::erase_rect(0,160,480,240);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 7 , "Robot Pose: %.2f, %.2f, %.2f",robotPose.x,robotPose.y,float(robotPose.theta)*180/M_PI);
-            pros::screen::print(pros::E_TEXT_MEDIUM, 8 , "Target Pose: %.2f, %.2f, %.2f",targetPose.x,targetPose.y,float(targetPose.theta)*180/M_PI);
+            odometer();
 
             double dtheta = targetPose.theta - robotPose.theta;
 
             // PID outputs
             double turningPower = turn_pid->calculate(dtheta);
+
+            if(fabs(turningPower) < 4) turningPower = 0;
 
             // Set motor power
             if (left_motors && right_motors) {
@@ -524,8 +523,8 @@ void Robot::turnTo(float thetaAbsolute, int timeout, float earlyExitDelta, gauss
             if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (fabs(dtheta) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
-                    left_motors->move(0);
-                    right_motors->move(0);
+                    left_motors->brake();
+                    right_motors->brake();
                 }
                 finished = true;
                 break;
@@ -577,6 +576,7 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
     pros::Task turnToPointTask([this, turn_pid, timeout, earlyExitDelta] {
         int startTime = pros::millis();
         while (true) {
+            odometer(); //Uses motor encoders to update robot position
             robotPose.theta = (imus[0]->get_heading() * M_PI/180);
 
             double dtheta = targetPose.theta - robotPose.theta;
@@ -594,8 +594,8 @@ void Robot::turnToPoint(float x, float y, int timeout, float earlyExitDelta, gau
             if ((turn_pid->isSettled(dtheta)) || (pros::millis() - startTime > timeout) || (fabs(dtheta) < earlyExitDelta)) {
                 // Stop motors
                 if (left_motors && right_motors) {
-                    left_motors->move(0);
-                    right_motors->move(0);
+                    left_motors->brake();
+                    right_motors->brake();
                 }
                 finished = true;
                 break;

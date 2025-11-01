@@ -29,7 +29,7 @@ public:
     double Kd;              // derivative constant
 
     // constructor
-    PID(double Kp, double Ki, double Kd, double integralLimit = 1000.0);
+    PID(double Kp, double Ki, double Kd, double integralLimit = 10);
 
     // calculate PID output
     double calculate(double error);

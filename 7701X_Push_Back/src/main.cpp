@@ -77,9 +77,9 @@ void initialize() { // runs initialization; keep execution time under three seco
 	latteral_med_qual.setExitConditions(1, 250, 5000);
 	latteral_low_qual.setExitConditions(1, 250, 5000);
 
-	turning_high_qual.setExitConditions(5*M_PI/180, 250, 5000);
-	turning_med_qual.setExitConditions(5*M_PI/180, 250, 5000);
-	turning_low_qual.setExitConditions(5*M_PI/180, 250, 5000);
+	turning_high_qual.setExitConditions(1*M_PI/180, 250, 5000);
+	turning_med_qual.setExitConditions(1*M_PI/180, 250, 5000);
+	turning_low_qual.setExitConditions(1*M_PI/180, 250, 5000);
 
 	pros::Task screenTask([] {
 		while(true) {
@@ -96,8 +96,8 @@ void disabled() { // task exits when robot is re-enabled
 
 void competition_initialize() { // pre-auton; ends when auton begins
     //calibrate IMUs
-    //imu1.reset();
-    //imu2.reset();
+    imu1.reset(true);
+    imu2.reset(true);
 
     robot.place(autonPose[selectedAuton].x, autonPose[selectedAuton].y, autonPose[selectedAuton].theta);
 }

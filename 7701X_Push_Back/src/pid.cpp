@@ -49,12 +49,15 @@ bool PID::isSettled(double error) {
     auto now = pros::millis();
 
     if (fabs(error) < errorThreshold) {
-        if (now - stableTime >= settleTimeMs) return true;
+        if (now - stableTime >= settleTimeMs) {
+            pros::screen::print(pros::E_TEXT_MEDIUM, 10 , "Settled in: %0.2f", float(now-startTime));
+            return true;
+        }
+        pros::screen::print(pros::E_TEXT_MEDIUM, 9 , "Entered range: %0.2f", float(now-startTime));
     } else {
         stableTime = now;
     }
 
-    if (now - startTime >= timeoutMs) return true; // timeout
     return false;
 }
 
