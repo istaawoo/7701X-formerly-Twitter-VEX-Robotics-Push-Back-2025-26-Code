@@ -144,7 +144,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
     lat_pid->reset();
     turn_pid->reset();
 
-    pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta] {
+    pros::Task moveTask([this, lat_pid, turn_pid, distance, timeout, earlyExitDelta, maxSpeed] {
         int startTime = pros::millis();
         while (true) {
             odometer();
@@ -156,14 +156,17 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             double difference = sqrt(dx * dx + dy * dy) * cos(angleToTarget - robotPose.theta);
 
             // Normalize angleError to [-pi, pi]
-            while (angleError > M_PI) angleError -= 2 * M_PI;
-            while (angleError < -M_PI) angleError += 2 * M_PI;
+            while (angleError > M_PI) angleError -= 2 * M_PI; 
+            while (angleError < -M_PI) angleError += 2 * M_PI; 
 
             pros::screen::print(pros::E_TEXT_MEDIUM, 6 , "Angle Error: %.2f",angleError*180/M_PI);
 
             // PID outputs
             double lateralPower = lat_pid->calculate(difference);
             double turningPower = turn_pid->calculate(angleError) * difference < 4 ? 0 : 1;
+
+            if (lateralPower < -maxSpeed) lateralPower = -maxSpeed;
+            if (lateralPower > maxSpeed) lateralPower = maxSpeed;
             
             // Set motor power
             if (left_motors && right_motors) {

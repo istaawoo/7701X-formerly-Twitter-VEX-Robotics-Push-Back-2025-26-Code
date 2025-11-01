@@ -34,8 +34,8 @@ void auton1() {
     //robot.move(24, 0, 2000, 1, 0, {0,1}, {0,5});
     //pros::screen::print(pros::E_TEXT_MEDIUM, 5 , "Turn Start");
 
-    robot.move(24,0,4000,1,0);
-    robot.move(-24,0,8000,100,0);
+    robot.move(24,0,4000,128,0);
+    robot.move(-24,0,8000,128,0);
 
     pros::delay(500);
     
@@ -50,7 +50,7 @@ void auton1() {
 
 void auton2() {
     autonPose[1] = {0,0,0};
-    robot.move(24, 0, 2000, 0, 0);
+    robot.move(24, 0, 2000, 128, 0);
     robot.turnTo(90, 1000, 0);
 }
 
