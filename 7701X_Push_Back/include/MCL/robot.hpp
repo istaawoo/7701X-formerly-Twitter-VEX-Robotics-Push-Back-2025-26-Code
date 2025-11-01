@@ -64,6 +64,8 @@ public:
 
     pros::MotorGroup* right_motors;
     pros::MotorGroup* left_motors;
+    pros::MotorGroup* intake1;
+    pros::MotorGroup* intake2;
 
     LatPID latteral_PID;
     TurnPID turning_PID;
@@ -77,7 +79,8 @@ public:
     std::vector<std::unique_ptr<pros::Optical>> opticals;
 
     Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance,
-          pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID latPID, TurnPID turnPID);
+          pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, pros::MotorGroup* intake1, pros::MotorGroup* intake2,
+          LatPID latPID, TurnPID turnPID);
 
     Pose getPose();
 

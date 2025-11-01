@@ -50,8 +50,15 @@ void auton1() {
 
 void auton2() {
     autonPose[1] = {0,0,0};
-    robot.move(24, 0, 2000, 128, 0);
-    robot.turnTo(90, 1000, 0);
+    robot.intake1->move_voltage(12000);
+    robot.move(36, 0, 2000, 127, 0);
+    pros::delay(500);
+    robot.turnTo(225, 1000, 0);
+    robot.move(-12,45,2000,60,0);
+    robot.intake2->move_voltage(-12000);
+    pros::delay(2000);
+    robot.intake1->brake();
+    robot.intake2->brake();
 }
 
 void auton3() {

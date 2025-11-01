@@ -14,7 +14,8 @@ PID turning_low_qual(160, 120, 100);  // turn_three
 bool finished = true;
 
 Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wheelSize, double rotCenterDistance, 
-             pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, LatPID latPID, TurnPID turnPID) {
+             pros::MotorGroup* right_motors, pros::MotorGroup* left_motors, pros::MotorGroup* intake1, pros::MotorGroup* intake2,
+             LatPID latPID, TurnPID turnPID) {
 
     this->trackWidth = trackWidth;
     this->trackLength = trackLength;
@@ -24,6 +25,8 @@ Robot::Robot(double trackWidth, double trackLength, double wheelRatio, double wh
 
     this->right_motors = right_motors;
     this->left_motors = left_motors;
+    this->intake1 = intake1;
+    this->intake2 = intake2;
     this->latteral_PID = latPID;
     this->turning_PID = turnPID;
 }

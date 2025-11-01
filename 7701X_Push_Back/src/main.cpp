@@ -58,7 +58,7 @@ Distance front(4);
 Distance left(7);
 Distance back(6);
 
-Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, LatPID::lat_one, TurnPID::turn_one);
+Robot robot(11.0, 10.0, .75, 3.25, 5.75, &right_motors, &left_motors, &intake1, &intake2, LatPID::lat_one, TurnPID::turn_one);
 
 Controller controller(pros::E_CONTROLLER_MASTER);
 
