@@ -75,7 +75,7 @@ void initialize() { // runs initialization; keep execution time under three seco
 
     latteral_high_qual.setExitConditions(1, 250, 5000);
 	latteral_med_qual.setExitConditions(1, 250, 5000);
-	latteral_low_qual.setExitConditions(1, 250, 5000);
+	latteral_low_qual.setExitConditions(1.5, 250, 5000);
 
 	turning_high_qual.setExitConditions(1*M_PI/180, 250, 5000);
 	turning_med_qual.setExitConditions(1*M_PI/180, 250, 5000);

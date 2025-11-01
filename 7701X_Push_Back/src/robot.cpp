@@ -3,7 +3,7 @@
 #include "mcl/mcl.hpp"
 #include <cmath>
 
-PID latteral_high_qual(6, 0, 4);  // lat_one
+PID latteral_high_qual(5, 0, 8);  // lat_one
 PID latteral_med_qual(5, 1, 5);   // lat_two
 PID latteral_low_qual(10, 5, 10); // lat_three
 
@@ -155,8 +155,6 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             double angleError = angleToTarget - (robotPose.theta + distance < 0 ? M_PI : 0);
             double difference = sqrt(dx * dx + dy * dy) * cos(angleToTarget - robotPose.theta);
 
-            pros::screen::print(pros::E_TEXT_MEDIUM, 1 , "Angle Error: %.2f",angleError*180/M_PI);
-
             // Normalize angleError to [-pi, pi]
             while (angleError > M_PI) angleError -= 2 * M_PI;
             while (angleError < -M_PI) angleError += 2 * M_PI;
@@ -165,7 +163,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
 
             // PID outputs
             double lateralPower = lat_pid->calculate(difference);
-            double turningPower = turn_pid->calculate(angleError) * difference < 6 ? 0 : 1;
+            double turningPower = turn_pid->calculate(angleError) * difference < 4 ? 0 : 1;
             
             // Set motor power
             if (left_motors && right_motors) {
@@ -174,7 +172,7 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
             }
 
             // Check if PID is settled or timeout
-            if ((lat_pid->isSettled(difference) && turn_pid->isSettled(angleError)) 
+            if ((lat_pid->isSettled(difference)) 
                 || (pros::millis() - startTime > timeout)
                 || (fabs(difference) < earlyExitDelta)) {
                 // Stop motors
@@ -186,7 +184,6 @@ void Robot::move(float distance, float theta, int timeout, float maxSpeed, float
                 //robotFilter.senseUpdate();
                 //robotPose = robotFilter.predictPosition();
                 finished = true;
-                pros::screen::print(pros::E_TEXT_MEDIUM, 10 , "Move Done");
                 break;
             }
             pros::delay(20);
